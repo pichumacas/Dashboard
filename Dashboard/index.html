@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<!-- saved from url=(0045)file:///C:/Users/pichu/Downloads/index_2.html -->
-<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="es">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1B3A14">
 <title>Dashboard · Blanca Moreno</title>
-<link rel="manifest" href="data:application/json,{&#39;name&#39;:&#39;Dashboard Blanca&#39;,&#39;short_name&#39;:&#39;Dashboard&#39;,&#39;start_url&#39;:&#39;.&#39;,&#39;display&#39;:&#39;standalone&#39;,&#39;background_color&#39;:&#39;%23F2F5F0&#39;,&#39;theme_color&#39;:&#39;%231B3A14&#39;}">
-<script src="./Dashboard · Blanca Moreno_files/chart.umd.min.js.descargar"></script>
-<script src="./Dashboard · Blanca Moreno_files/pdf.min.js.descargar"></script>
-<script src="./Dashboard · Blanca Moreno_files/firebase-app-compat.js.descargar"></script>
-<script src="./Dashboard · Blanca Moreno_files/firebase-database-compat.js.descargar"></script>
+<link rel="manifest" href="data:application/json,{'name':'Dashboard Blanca','short_name':'Dashboard','start_url':'.','display':'standalone','background_color':'%23F2F5F0','theme_color':'%231B3A14'}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 :root{
@@ -282,7 +282,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
   <div class="modal">
     <h3>Clave API de Anthropic</h3>
     <p>Necesaria para procesar PDFs con IA. Se guarda solo en tu navegador y nunca sale de tu ordenador.</p>
-    <div class="field"><label>API Key</label><input type="password" id="api-input" placeholder="sk-ant-..."></div>
+    <div class="field"><label>API Key</label><input type="password" id="api-input" placeholder="sk-ant-..."/></div>
     <p style="margin-top:8px;font-size:11px;color:var(--text-faint);">Encuéntrala en console.anthropic.com → API Keys</p>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal()">Cancelar</button>
@@ -302,23 +302,25 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
     </div>
     <div class="sidebar-logo-bottom">
       <span class="owner">Dashboard de gestión · v2</span>
-      <span class="date-lbl" id="today-label">Martes 30/6</span>
+      <span class="date-lbl" id="today-label"></span>
     </div>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section">Principal</div>
-    <button class="nav-item active" onclick="goTo(&#39;inicio&#39;)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span>Inicio</span></button>
-    <button class="nav-item" onclick="goTo(&#39;reuniones&#39;)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span>Reuniones</span></button>
+    <button class="nav-item active" onclick="goTo('inicio')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Inicio</span></button>
+    <button class="nav-item" onclick="goTo('reuniones')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><span>Reuniones</span></button>
     <div class="nav-section">Análisis</div>
-    <button class="nav-item" onclick="goTo(&#39;costes&#39;)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg><span>Costes</span></button>
-    <button class="nav-item" onclick="goTo(&#39;mcaccion&#39;)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg><span>McAcción</span></button>
+    <button class="nav-item" onclick="goTo('costes')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span>Costes</span></button>
+    <button class="nav-item" onclick="goTo('mcaccion')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg><span>McAcción</span></button>
     <div class="nav-section">Proyectos</div>
-    <button class="nav-item" onclick="goTo(&#39;velilla&#39;)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg><span>Velilla</span></button>
-    <button class="nav-item" onclick="goTo(&#39;instrucciones&#39;)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><span>Instrucciones</span></button>
+    <button class="nav-item" onclick="goTo('velilla')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg><span>Velilla</span></button>
+    <button class="nav-item" onclick="goTo('instrucciones')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>Instrucciones</span></button>
   </nav>
   <div class="sidebar-footer">
-    <div id="sync-status" style="font-size: 11px; padding: 4px 10px 8px; display: flex; align-items: center; gap: 6px; color: rgba(255, 255, 255, 0.6);"><span style="width:7px;height:7px;border-radius:50%;background:#2ECC71;display:inline-block;"></span> Sincronizado</div>
-    <button class="api-key-btn" onclick="openModal()"><span class="api-status ok" id="api-dot"></span><span id="api-btn-label">API activa</span></button>
+    <div id="sync-status" style="font-size:11px;padding:4px 10px 8px;display:flex;align-items:center;gap:6px;color:rgba(255,255,255,0.4);">
+      <span style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.2);display:inline-block;"></span> Conectando...
+    </div>
+    <button class="api-key-btn" onclick="openModal()"><span class="api-status" id="api-dot"></span><span id="api-btn-label">API Key</span></button>
   </div>
 </aside>
 <main class="main">
@@ -326,22 +328,22 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
 <!-- INICIO -->
 <div class="page active" id="page-inicio">
   <div class="page-header" style="margin-bottom:16px;padding-bottom:14px;">
-    <h2 id="greeting">Buenas tardes</h2><p id="subgreeting">Martes, 30 de junio</p>
+    <h2 id="greeting">Buenos días</h2><p id="subgreeting"></p>
   </div>
-  <div class="alert-banner" id="alert-banner" style="display: none;"><div class="alert-banner-title">⚠ Vence mañana</div><div id="alert-list"></div></div>
+  <div class="alert-banner" id="alert-banner"><div class="alert-banner-title">⚠ Vence mañana</div><div id="alert-list"></div></div>
 
   <!-- 1/3: CALENDARIO -->
   <div class="card" style="margin-bottom:10px;padding:16px 20px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <button class="cal-nav-btn" onclick="calWeekOffset(-1)">←</button>
-        <span id="cal-week-label" style="font-size:15px;font-weight:700;color:var(--text);">29 junio – 5 julio 2026</span>
-        <button class="cal-nav-btn" onclick="calWeekOffset(1)">→</button>
+        <button class="cal-nav-btn" onclick="calWeekOffset(-1)">&#8592;</button>
+        <span id="cal-week-label" style="font-size:15px;font-weight:700;color:var(--text);"></span>
+        <button class="cal-nav-btn" onclick="calWeekOffset(1)">&#8594;</button>
         <button class="cal-nav-btn" id="cal-today-btn" onclick="calGoToday()" style="display:none;font-size:11px;padding:4px 10px;">Hoy</button>
       </div>
       <button class="btn btn-yellow" onclick="calOpenAdd()" style="padding:7px 16px;font-weight:600;">+ Añadir tarea</button>
     </div>
-    <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:7px;"><div class="cal-day"><div class="cal-day-header"><div class="cal-day-name">LUN</div><div class="cal-day-num" style="color:var(--text-muted);font-size:20px;">29</div></div><div class="cal-task ct-reunion"><span style="opacity:.6;font-size:10px;">10:00</span> Velilla: Reunion mejorada</div><div class="cal-task ct-accion"><span style="opacity:.6;font-size:10px;">11:00</span> Mandar mail al seguro …</div><div class="cal-task ct-reunion"><span style="opacity:.6;font-size:10px;">18:30</span> Coaching Zaida</div></div><div class="cal-day today"><div class="cal-day-header"><div class="cal-day-name">MAR</div><div class="cal-day-num">30</div></div><div class="cal-task ct-accion"><span style="opacity:.6;font-size:10px;">10:00</span> Urba: Hacer el comparable de…</div><div class="cal-task ct-accion"><span style="opacity:.6;font-size:10px;">12:00</span> Velilla: Llamar a gente para Ve…</div><div class="cal-task ct-accion"><span style="opacity:.6;font-size:10px;">16:00</span> Velilla: Meter los informe de o…</div></div><div class="cal-day"><div class="cal-day-header"><div class="cal-day-name">MIÉ</div><div class="cal-day-num" style="color:var(--text-muted);font-size:20px;">1</div></div><div class="cal-task ct-accion"><span style="opacity:.6;font-size:10px;">09:00</span> Ya podemos usar Docusi…</div><div class="cal-task ct-reunion"><span style="opacity:.6;font-size:10px;">10:00</span> Vicálvaro: Fuen</div><div class="cal-task ct-accion"><span style="opacity:.6;font-size:10px;">12:00</span> Mirar bien docusign</div></div><div class="cal-day"><div class="cal-day-header"><div class="cal-day-name">JUE</div><div class="cal-day-num" style="color:var(--text-muted);font-size:20px;">2</div></div><div class="cal-task ct-accion"><span style="opacity:.6;font-size:10px;">10:00</span> La Gavia: Contratar para la gavi…</div><div class="cal-task ct-accion"><span style="opacity:.6;font-size:10px;">11:00</span> Velilla: Llamar a los concejale…</div></div><div class="cal-day"><div class="cal-day-header"><div class="cal-day-name">VIE</div><div class="cal-day-num" style="color:var(--text-muted);font-size:20px;">3</div></div></div><div class="cal-day"><div class="cal-day-header"><div class="cal-day-name">SÁB</div><div class="cal-day-num" style="color:var(--text-muted);font-size:20px;">4</div></div></div><div class="cal-day"><div class="cal-day-header"><div class="cal-day-name">DOM</div><div class="cal-day-num" style="color:var(--text-muted);font-size:20px;">5</div></div></div></div>
+    <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:7px;"></div>
   </div>
 
   <!-- 2/3: BLOC DE NOTAS SEMANAL tipo OneNote -->
@@ -350,17 +352,21 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
       <div style="display:flex;align-items:center;gap:10px;">
         <span style="font-size:16px;">📓</span>
         <div>
-          <div id="onenote-title" style="font-size:13px;font-weight:700;color:#fff;letter-spacing:-0.2px;">29 junio – 5 julio 2026</div>
+          <div id="onenote-title" style="font-size:13px;font-weight:700;color:#fff;letter-spacing:-0.2px;"></div>
           <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px;">Notas de la semana · se guardan permanentemente</div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <button class="cal-nav-btn" onclick="calWeekOffset(-1)" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;font-size:13px;padding:4px 10px;">←</button>
-        <button class="cal-nav-btn" onclick="calWeekOffset(1)" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;font-size:13px;padding:4px 10px;">→</button>
+        <button class="cal-nav-btn" onclick="calWeekOffset(-1)" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;font-size:13px;padding:4px 10px;">&#8592;</button>
+        <button class="cal-nav-btn" onclick="calWeekOffset(1)" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;font-size:13px;padding:4px 10px;">&#8594;</button>
       </div>
     </div>
     <div style="padding:18px 22px;">
-      <textarea id="onenote-textarea" placeholder="Escribe aquí las notas de esta semana... Reuniones, acuerdos, observaciones, recordatorios. Todo lo que necesites." onkeyup="saveOneNote()" oninput="saveOneNote()" style="width:100%;min-height:180px;border:none;outline:none;resize:vertical;font-family:&#39;Inter&#39;,-apple-system,sans-serif;font-size:14px;line-height:1.75;color:var(--text);background:transparent;padding:0;"></textarea>
+      <textarea id="onenote-textarea"
+        placeholder="Escribe aquí las notas de esta semana... Reuniones, acuerdos, observaciones, recordatorios. Todo lo que necesites."
+        onkeyup="saveOneNote()"
+        oninput="saveOneNote()"
+        style="width:100%;min-height:180px;border:none;outline:none;resize:vertical;font-family:'Inter',-apple-system,sans-serif;font-size:14px;line-height:1.75;color:var(--text);background:transparent;padding:0;"></textarea>
     </div>
   </div>
 
@@ -370,37 +376,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
       <div style="font-size:12px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;text-transform:uppercase;">Visitas esta semana</div>
       <button class="btn btn-sm" onclick="resetVisits()">Nueva semana</button>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;" id="mini-rest-grid"><div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--surface);">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Arganda</div>
-      <div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;font-weight:500;">Pendiente</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;">
-        <div class="chk on" onclick="event.stopPropagation();toggleVisitMini(&#39;Arganda&#39;,&#39;visited&#39;)">Visita</div><div class="chk on" onclick="event.stopPropagation();toggleVisitMini(&#39;Arganda&#39;,&#39;ventas&#39;)">Ventas</div><div class="chk on" onclick="event.stopPropagation();toggleVisitMini(&#39;Arganda&#39;,&#39;necesidades&#39;)">Necesidades</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Arganda&#39;,&#39;food&#39;)">Food cost</div>
-      </div></div><div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--surface);">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Futura</div>
-      <div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;font-weight:500;">Pendiente</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;">
-        <div class="chk on" onclick="event.stopPropagation();toggleVisitMini(&#39;Futura&#39;,&#39;visited&#39;)">Visita</div><div class="chk on" onclick="event.stopPropagation();toggleVisitMini(&#39;Futura&#39;,&#39;ventas&#39;)">Ventas</div><div class="chk on" onclick="event.stopPropagation();toggleVisitMini(&#39;Futura&#39;,&#39;necesidades&#39;)">Necesidades</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Futura&#39;,&#39;food&#39;)">Food cost</div>
-      </div></div><div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--surface);">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Urba</div>
-      <div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;font-weight:500;">Pendiente</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;">
-        <div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Urba&#39;,&#39;visited&#39;)">Visita</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Urba&#39;,&#39;ventas&#39;)">Ventas</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Urba&#39;,&#39;necesidades&#39;)">Necesidades</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Urba&#39;,&#39;food&#39;)">Food cost</div>
-      </div></div><div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--surface);">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">La Gavia</div>
-      <div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;font-weight:500;">Pendiente</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;">
-        <div class="chk on" onclick="event.stopPropagation();toggleVisitMini(&#39;La Gavia&#39;,&#39;visited&#39;)">Visita</div><div class="chk on" onclick="event.stopPropagation();toggleVisitMini(&#39;La Gavia&#39;,&#39;ventas&#39;)">Ventas</div><div class="chk on" onclick="event.stopPropagation();toggleVisitMini(&#39;La Gavia&#39;,&#39;necesidades&#39;)">Necesidades</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;La Gavia&#39;,&#39;food&#39;)">Food cost</div>
-      </div></div><div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--surface);">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Vicálvaro</div>
-      <div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;font-weight:500;">Pendiente</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;">
-        <div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Vicálvaro&#39;,&#39;visited&#39;)">Visita</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Vicálvaro&#39;,&#39;ventas&#39;)">Ventas</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Vicálvaro&#39;,&#39;necesidades&#39;)">Necesidades</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Vicálvaro&#39;,&#39;food&#39;)">Food cost</div>
-      </div></div><div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--surface);">
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Velilla</div>
-      <div style="font-size:10px;color:var(--text-faint);margin-bottom:8px;font-weight:500;">Pendiente</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;">
-        <div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Velilla&#39;,&#39;visited&#39;)">Visita</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Velilla&#39;,&#39;ventas&#39;)">Ventas</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Velilla&#39;,&#39;necesidades&#39;)">Necesidades</div><div class="chk" onclick="event.stopPropagation();toggleVisitMini(&#39;Velilla&#39;,&#39;food&#39;)">Food cost</div>
-      </div></div></div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;" id="mini-rest-grid"></div>
   </div>
 </div>
 
@@ -420,9 +396,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
     <div id="day-hours" style="margin-bottom:20px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;"></div>
     <div style="background:var(--bg);border-radius:var(--radius-sm);padding:14px;margin-bottom:20px;border:1px solid var(--border);">
       <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:10px;">＋ Nueva tarea</div>
-      <input id="day-new-text" placeholder="¿Qué tienes que hacer?" style="margin-bottom:8px;" onkeydown="if(event.key===&#39;Enter&#39;)dayAddTask()">
+      <input id="day-new-text" placeholder="¿Qué tienes que hacer?" style="margin-bottom:8px;" onkeydown="if(event.key==='Enter')dayAddTask()"/>
       <div style="display:flex;gap:6px;margin-bottom:8px;">
-        <input id="day-new-hour" type="time" style="width:105px;flex-shrink:0;">
+        <input id="day-new-hour" type="time" style="width:105px;flex-shrink:0;"/>
         <select id="day-new-rest" style="flex:1;"><option value="">Sin restaurante</option><option>Arganda</option><option>Futura</option><option>Urba</option><option>La Gavia</option><option>Vicálvaro</option><option>Velilla</option></select>
         <select id="day-new-type" style="flex:1;"><option value="accion">Acción</option><option value="reunion">Reunión</option><option value="nota">Nota</option></select>
       </div>
@@ -431,7 +407,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
     <div style="font-size:10px;font-weight:700;color:var(--text-faint);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:10px;">Notas rápidas del día</div>
     <div id="day-quick-notes" style="margin-bottom:10px;"></div>
     <div style="display:flex;gap:6px;">
-      <input id="day-note-input" placeholder="Escribe una nota rápida..." onkeydown="if(event.key===&#39;Enter&#39;)dayAddNote()">
+      <input id="day-note-input" placeholder="Escribe una nota rápida..." onkeydown="if(event.key==='Enter')dayAddNote()"/>
       <button class="btn btn-sm btn-yellow" onclick="dayAddNote()" style="flex-shrink:0;">+</button>
     </div>
   </div>
@@ -442,10 +418,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
   <div class="modal" style="width:440px;">
     <h3>Nueva tarea</h3>
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
-      <input id="cal-new-text" placeholder="Descripción..." onkeydown="if(event.key===&#39;Enter&#39;)calAddTask()">
+      <input id="cal-new-text" placeholder="Descripción..." onkeydown="if(event.key==='Enter')calAddTask()"/>
       <div style="display:flex;gap:6px;">
-        <input id="cal-new-date" type="date" style="flex:1;">
-        <input id="cal-new-hour" type="time" style="width:110px;flex-shrink:0;">
+        <input id="cal-new-date" type="date" style="flex:1;"/>
+        <input id="cal-new-hour" type="time" style="width:110px;flex-shrink:0;"/>
       </div>
       <div style="display:flex;gap:6px;">
         <select id="cal-new-rest" style="flex:1;"><option value="">Sin restaurante</option><option>Arganda</option><option>Futura</option><option>Urba</option><option>La Gavia</option><option>Vicálvaro</option><option>Velilla</option></select>
@@ -453,7 +429,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="document.getElementById(&#39;cal-modal&#39;).classList.remove(&#39;show&#39;)">Cancelar</button>
+      <button class="btn" onclick="document.getElementById('cal-modal').classList.remove('show')">Cancelar</button>
       <button class="btn btn-yellow" onclick="calAddTask()">Guardar</button>
     </div>
   </div>
@@ -464,8 +440,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
   <div class="page-header"><h2>Reuniones</h2><p>Apuntes de reuniones · se vinculan automáticamente al calendario</p></div>
   <div style="display:flex;gap:12px;margin-bottom:14px;align-items:center;">
     <div style="flex:1;position:relative;">
-      <input id="reunion-search" placeholder="Buscar reuniones... (título, notas, palabras clave)" oninput="renderReunionList()" style="padding-left:32px;">
-      <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-faint);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+      <input id="reunion-search" placeholder="Buscar reuniones... (título, notas, palabras clave)" oninput="renderReunionList()" style="padding-left:32px;"/>
+      <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-faint);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     </div>
     <button class="btn btn-yellow" onclick="openNewReunion()" style="padding:8px 18px;font-weight:600;white-space:nowrap;">+ Nueva reunión</button>
   </div>
@@ -478,10 +454,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
     <h3 id="reunion-modal-title">Nueva reunión</h3>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
       <div style="display:flex;gap:8px;">
-        <div class="field" style="flex:1;"><label>Fecha</label><input type="date" id="reunion-date"></div>
-        <div class="field" style="width:110px;"><label>Hora (opc.)</label><input type="time" id="reunion-hour"></div>
+        <div class="field" style="flex:1;"><label>Fecha</label><input type="date" id="reunion-date"/></div>
+        <div class="field" style="width:110px;"><label>Hora (opc.)</label><input type="time" id="reunion-hour"/></div>
       </div>
-      <div class="field"><label>Título</label><input id="reunion-title" placeholder="Ej: Reunión alcaldesa Velilla"></div>
+      <div class="field"><label>Título</label><input id="reunion-title" placeholder="Ej: Reunión alcaldesa Velilla"/></div>
       <div class="field">
         <label>Notas</label>
         <textarea id="reunion-notes" rows="8" placeholder="Escribe aquí los apuntes de la reunión..." style="resize:vertical;min-height:120px;font-size:14px;line-height:1.7;"></textarea>
@@ -498,20 +474,20 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
 <div class="page" id="page-costes">
   <div class="page-header"><h2>Costes comida &amp; papel</h2><p>Sube el PDF del Informe de Operaciones · extracción automática con IA</p></div>
   <div class="card">
-    <div class="card-header"><div class="card-title">Subir informes de operaciones</div><span style="font-size:12px;color:var(--text-faint);" id="costes-count">10 registros acumulados</span></div>
-    <div class="upload-zone" id="costes-drop" onclick="document.getElementById(&#39;costes-file&#39;).click()" ondragover="event.preventDefault();this.classList.add(&#39;drag&#39;)" ondragleave="this.classList.remove(&#39;drag&#39;)" ondrop="costesDrop(event)">
+    <div class="card-header"><div class="card-title">Subir informes de operaciones</div><span style="font-size:12px;color:var(--text-faint);" id="costes-count"></span></div>
+    <div class="upload-zone" id="costes-drop" onclick="document.getElementById('costes-file').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="costesDrop(event)">
       <div class="upload-icon">📄</div>
       <div class="upload-text">Arrastra PDFs del Informe de Operaciones o haz clic para seleccionar</div>
       <div class="upload-sub">Detecta automáticamente restaurante y período · varios PDFs a la vez</div>
     </div>
-    <input type="file" id="costes-file" accept="application/pdf" multiple="" style="display:none" onchange="costesHandleFiles(this.files)">
+    <input type="file" id="costes-file" accept="application/pdf" multiple style="display:none" onchange="costesHandleFiles(this.files)">
     <div id="costes-queue"></div>
     <div class="analyzing" id="costes-analyzing"><div class="spinner"></div><span id="costes-atxt">Procesando...</span></div>
   </div>
   <div class="view-tabs">
-    <button class="vtab active" onclick="swCostes(&#39;rest&#39;,this)">Por restaurante</button>
-    <button class="vtab" onclick="swCostes(&#39;comp&#39;,this)">Comparativa</button>
-    <button class="vtab" onclick="swCostes(&#39;tabla&#39;,this)">Tabla completa</button>
+    <button class="vtab active" onclick="swCostes('rest',this)">Por restaurante</button>
+    <button class="vtab" onclick="swCostes('comp',this)">Comparativa</button>
+    <button class="vtab" onclick="swCostes('tabla',this)">Tabla completa</button>
   </div>
   <div class="vtab-panel active" id="cvp-rest">
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="costes-rbar"></div>
@@ -525,7 +501,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
   <div class="vtab-panel" id="cvp-tabla">
     <div class="card">
       <div class="card-header"><div class="card-title">Todos los registros</div><div style="display:flex;gap:6px;"><button class="btn btn-sm btn-yellow" onclick="exportExcel()">⬇ Exportar Excel</button><button class="btn btn-sm" onclick="clearCostes()">Borrar todo</button></div></div>
-      <div class="tbl-scroll"><table class="tbl"><thead><tr><th>Período</th><th>Rest.</th><th>Real food%</th><th>Real pap%</th><th>Margen%</th><th>Teórico food%</th><th>Teórico pap%</th><th>Basura%</th><th>C.empl%</th><th>Desv food%</th><th>Desv pap%</th><th>Desv total%</th><th>Rendim €</th><th>Rendim %</th><th>Comentarios</th><th></th></tr></thead><tbody id="costes-tbody"></tbody></table></div>
+      <div class="tbl-scroll"><table class="tbl"><thead><tr><th>Período</th><th>Rest.</th><th>Real food%</th><th>Real pap%</th><th>Margen%</th><th>Teórico food%</th><th>Basura%</th><th>C.empl%</th><th>Desv total%</th><th>Rendim %</th><th>Impacto €</th><th>Comentarios</th><th></th><th></th></tr></thead><tbody id="costes-tbody"></tbody></table></div>
     </div>
   </div>
 </div>
@@ -533,10 +509,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
 <!-- MCACCION -->
 <div class="page" id="page-mcaccion">
   <div class="page-header"><h2>McAcción</h2><p>Campañas semanales · acciones encadenadas automáticas · historial</p></div>
-  <div class="alert-banner" id="mc-alert" style="display: none;"><div class="alert-banner-title">Acciones para hoy o mañana</div><div id="mc-alert-list"></div></div>
+  <div class="alert-banner" id="mc-alert"><div class="alert-banner-title">Acciones para hoy o mañana</div><div id="mc-alert-list"></div></div>
   <div class="card">
     <div class="card-header"><div class="card-title">Subir PDF del McAcción (jueves)</div><span style="font-size:12px;color:var(--text-faint);" id="mc-last-label"></span></div>
-    <div class="upload-zone" id="mc-drop" onclick="document.getElementById(&#39;mc-file&#39;).click()" ondragover="event.preventDefault();this.classList.add(&#39;drag&#39;)" ondragleave="this.classList.remove(&#39;drag&#39;)" ondrop="mcDrop(event)">
+    <div class="upload-zone" id="mc-drop" onclick="document.getElementById('mc-file').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="mcDrop(event)">
       <div class="upload-icon">📋</div>
       <div class="upload-text">Arrastra el PDF del McAcción o haz clic</div>
       <div class="upload-sub">Extrae campañas, fechas clave y genera acciones encadenadas automáticamente</div>
@@ -545,8 +521,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
     <div class="analyzing" id="mc-analyzing"><div class="spinner"></div><span id="mc-atxt">Analizando...</span></div>
   </div>
   <div class="view-tabs">
-    <button class="vtab active" onclick="swMC(&#39;actual&#39;,this)">Campaña actual</button>
-    <button class="vtab" onclick="swMC(&#39;hist&#39;,this)">Historial</button>
+    <button class="vtab active" onclick="swMC('actual',this)">Campaña actual</button>
+    <button class="vtab" onclick="swMC('hist',this)">Historial</button>
   </div>
   <div class="vtab-panel active" id="mcvp-actual"><div id="mc-current"><div class="card"><p style="font-size:13px;color:var(--text-faint);">Sube el PDF del McAcción del jueves para ver campañas y acciones generadas automáticamente.</p></div></div></div>
   <div class="vtab-panel" id="mcvp-hist"><div class="card"><div class="card-header"><div class="card-title">McAcciones anteriores</div></div><div id="mc-hist-list"><p style="font-size:13px;color:var(--text-faint);">Sin historial aún.</p></div></div></div>
@@ -556,7 +532,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
 <div class="page" id="page-velilla">
   <div class="page-header"><h2>Proyecto Velilla</h2><p>Apertura · hitos · reuniones · acciones</p></div>
   <div class="qcap">
-    <input id="vel-input" placeholder="Añadir nota, acción o reunión..." onkeydown="if(event.key===&#39;Enter&#39;)velAdd()" style="flex:1;">
+    <input id="vel-input" placeholder="Añadir nota, acción o reunión..." onkeydown="if(event.key==='Enter')velAdd()" style="flex:1;"/>
     <select id="vel-type" style="width:auto;"><option value="accion">Acción</option><option value="nota">Nota</option><option value="reunion">Reunión</option><option value="hito">Hito</option></select>
     <button class="btn btn-primary" onclick="velAdd()">Guardar</button>
   </div>
@@ -571,7 +547,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
         <div class="ms-row"><div class="ms-dot ms-pending"></div><div><div class="ms-title">Apertura soft launch</div><div class="ms-date">Sin fecha</div></div></div>
       </div>
     </div>
-    <div class="card"><div class="card-header"><div class="card-title">Notas y acciones</div></div><div id="vel-notes"><p style="font-size:13px;color:var(--text-faint);">Sin notas aún.</p></div></div>
+    <div class="card"><div class="card-header"><div class="card-title">Notas y acciones</div></div><div id="vel-notes"></div></div>
   </div>
 </div>
 
@@ -580,13 +556,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
   <div class="page-header"><h2>Instrucciones operativas</h2><p>Sube un pantallazo con instrucciones y la IA las convierte en tareas asignadas por restaurante</p></div>
   <div class="card">
     <div class="card-header"><div class="card-title">Subir pantallazo</div></div>
-    <div class="upload-zone" id="instr-drop" onclick="document.getElementById(&#39;instr-file&#39;).click()" ondragover="event.preventDefault();this.classList.add(&#39;drag&#39;)" ondragleave="this.classList.remove(&#39;drag&#39;)" ondrop="instrDrop(event)">
+    <div class="upload-zone" id="instr-drop" onclick="document.getElementById('instr-file').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="instrDrop(event)">
       <div class="upload-icon">📸</div>
       <div class="upload-text">Arrastra la imagen o haz clic para seleccionar</div>
       <div class="upload-sub">PNG, JPG · La IA extrae las instrucciones y las asigna por restaurante</div>
     </div>
     <input type="file" id="instr-file" accept="image/*" style="display:none" onchange="instrHandleFile(this.files[0])">
-    <div id="instr-preview" style="display:none;margin-bottom:10px;"><img id="instr-img" style="max-width:100%;max-height:200px;border-radius:var(--radius-sm);border:1px solid var(--border);"></div>
+    <div id="instr-preview" style="display:none;margin-bottom:10px;"><img id="instr-img" style="max-width:100%;max-height:200px;border-radius:var(--radius-sm);border:1px solid var(--border);"/></div>
     <div class="analyzing" id="instr-analyzing"><div class="spinner"></div><span>Leyendo instrucciones con IA...</span></div>
   </div>
   <div id="instr-resultado" style="display:none;">
@@ -604,42 +580,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
   </div>
   <div class="card" style="margin-top:4px;">
     <div class="card-header"><div class="card-title">Historial de instrucciones guardadas</div></div>
-    <div id="instr-historial">
-    <div style="border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div>
-          <span style="font-size:13px;font-weight:600;color:var(--text);">Lunes 15/6</span>
-          <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">Instrucciones de horarios de cierre al público para varios restaurantes McDonald's</span>
-        </div>
-        <button onclick="instrDelHistorial(0)" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:17px;line-height:1;padding:0 4px;">×</button>
-      </div>
-      
-        <div class="action-row">
-          <div class="achk" onclick="instrToggleHist(0,0)"></div>
-          <span class="atype-pill">Urba</span>
-          <div class="atext">Cerrar al público a la 1:00. 1:30 cierre total.</div>
-        </div>
-        <div class="action-row">
-          <div class="achk" onclick="instrToggleHist(0,1)"></div>
-          <span class="atype-pill">Futura</span>
-          <div class="atext">Hasta las 2, 1:30 cierra al público. Sábados y domingos abrimos a las 11:30 al público y metemos a uno más en horarios.</div>
-        </div>
-        <div class="action-row">
-          <div class="achk" onclick="instrToggleHist(0,2)"></div>
-          <span class="atype-pill">La Gavia</span>
-          <div class="atext">Cerrar a las 00:30 al público, viernes, sábado y domingo.</div>
-        </div>
-        <div class="action-row">
-          <div class="achk" onclick="instrToggleHist(0,3)"></div>
-          <span class="atype-pill">Arganda</span>
-          <div class="atext">Cerrar los jueves a la 1 al público, 1:30.</div>
-        </div>
-        <div class="action-row">
-          <div class="achk done" onclick="instrToggleHist(0,4)"></div>
-          <span class="atype-pill">Vicálvaro</span>
-          <div class="atext done">Tal como está.</div>
-        </div>
-    </div></div>
+    <div id="instr-historial"></div>
   </div>
 </div>
 
@@ -1144,13 +1085,18 @@ async function costesProcessNext(){
   document.getElementById('costes-atxt').textContent='Procesando: '+f.name;
   try{
     const text=await extractPDFText(f);
+    // Capturar PDF como base64 para descarga posterior
+    let pdfBase64=null;
+    try{
+      const reader=new FileReader();
+      pdfBase64=await new Promise((res,rej)=>{reader.onload=()=>res(reader.result.split(',')[1]);reader.onerror=rej;reader.readAsDataURL(f);});
+    }catch(e){console.warn('No se pudo capturar PDF base64');}
     if(st) st.textContent='Analizando con IA...';
     document.getElementById('costes-atxt').textContent='Analizando: '+f.name;
-    // Intentar hasta 2 veces si falla
     let success=false;
     for(let attempt=1;attempt<=2&&!success;attempt++){
       try{
-        await analyzeCoste(text,f.name,costeQIdx);
+        await analyzeCoste(text,f.name,costeQIdx,pdfBase64);
         success=true;
       }catch(err){
         console.warn('Intento '+attempt+' falló:',err.message);
@@ -1168,45 +1114,50 @@ async function costesProcessNext(){
   costeQIdx++;
   costesProcessNext();
 }
-async function analyzeCoste(text,fname,idx){
+async function analyzeCoste(text,fname,idx,pdfBase64){
   const key=getKey();
   if(!key) throw new Error('Configura tu API Key primero');
   const st=document.getElementById('cfs'+idx);
 
-  // Intentar extraer store number del texto para validar después
   let storeFromText=null;
   const storeMatch=text.match(/Store:\s*(\d+)/i);
   if(storeMatch) storeFromText=storeMatch[1];
 
   const prompt=`Analiza este Informe de Operaciones de McDonald's España.
 
-TAREA: Extrae SOLO los datos de la sección "Coste de comida/papel" y devuelve JSON.
+TAREA: Extrae los datos de "Coste de comida/papel" y devuelve JSON.
 
-MAPEO DE RESTAURANTES (usa el Store number del encabezado):
-- Store 551 = "Arganda"
-- Store 524 = "Futura"
-- Store 390 = "Urba"
-- Store 484 = "La Gavia"
-- Store 1208 = "Vicálvaro"
+RESTAURANTES POR STORE:
+551="Arganda" | 524="Futura" | 390="Urba" | 484="La Gavia" | 1208="Vicálvaro"
 
-MUY IMPORTANTE - COLUMNAS DE LA TABLA "Coste de comida/papel":
-La tabla tiene 4 columnas: [Comida €] [Comida %] [Papel €] [Papel %]
-SOLO extrae los valores de las columnas de PORCENTAJE (las que tienen %).
-Los valores en euros son números grandes (ej: 11.365,66) → IGNÓRALOS.
-Los porcentajes son números pequeños seguidos de % (ej: 29,12 %) → USA ESTOS.
+COLUMNAS DE LA TABLA:
+[Comida €] [Comida %] [Papel €] [Papel %]
+- Valores grandes = EUROS (ej: 11.365,66)
+- Valores pequeños con % = PORCENTAJES (ej: 29,12 %)
 
-RESPONDE EXCLUSIVAMENTE CON ESTE JSON (sin texto adicional, sin markdown):
-{"restaurante":"","periodo":"MM/YYYY","fecha_inicio":"DD/MM/YYYY","fecha_fin":"DD/MM/YYYY","tipo":"semanal","teorico_food":0,"teorico_paper":0,"tmas_food":0,"tmas_paper":0,"real_food":0,"real_paper":0,"basura_food":0,"basura_paper":0,"cempl_food":0,"cempl_paper":0,"desv_food":0,"desv_paper":0,"desv_total":0,"rendim_valor":0,"rendim_pct":0,"comentarios":null}
+CAMPOS A EXTRAER (porcentajes como decimal, ej: 29,12% → 0.2912):
+- real_food/real_paper: "Uso real/coste" columnas %
+- teorico_food/teorico_paper: "Coste teórico" columnas %
+- tmas_food/tmas_paper: "Teórico+Basura+C. Empl.+Promo+Sin receta" columnas %
+- basura_food/basura_paper: "Total Desperdicio" columnas %
+- cempl_food/cempl_paper: "Coste Comida de Empleados" columnas %
+- desv_food/desv_paper: "Desviación Total" columnas %
+- desv_total: desv_food + desv_paper
+- desv_euros_food: "Desviación Total" columna EUROS comida (número grande, puede ser negativo)
+- desv_euros_paper: "Desviación Total" columna EUROS papel (número grande, puede ser negativo)
+- rendim_valor: "Cálculo de rendimiento" columna EUROS comida
+- rendim_pct: "Cálculo de rendimiento" columna % comida
 
-REGLAS DE FORMATO:
-- Porcentajes a decimal: 29,12% → 0.2912 | -2,07% → -0.0207 | 0,55% → 0.0055
-- rendim_valor en euros: -599,81 → -599.81
-- NINGÚN porcentaje puede ser > 0.50 (50%) ni < -0.50 — si lo es, has cogido euros
-- fecha_inicio: primera fecha del rango en el encabezado (ej: "15/06/2026 - 21/06/2026" → "15/06/2026")
-- fecha_fin: segunda fecha del rango
-- tipo: "mensual" si el rango ≥ 28 días, "semanal" si < 28 días
-- periodo: mes del informe en formato MM/YYYY
-- comentarios: texto de "Meteorología y comentarios" o null
+RESPONDE SOLO CON JSON:
+{"restaurante":"","periodo":"MM/YYYY","fecha_inicio":"DD/MM/YYYY","fecha_fin":"DD/MM/YYYY","tipo":"semanal","teorico_food":0,"teorico_paper":0,"tmas_food":0,"tmas_paper":0,"real_food":0,"real_paper":0,"basura_food":0,"basura_paper":0,"cempl_food":0,"cempl_paper":0,"desv_food":0,"desv_paper":0,"desv_total":0,"desv_euros_food":0,"desv_euros_paper":0,"rendim_valor":0,"rendim_pct":0,"comentarios":null}
+
+REGLAS:
+- Porcentajes → decimal: 29,12% → 0.2912 | -0,38% → -0.0038
+- Euros → número: -226,48 → -226.48 | 77,29 → 77.29
+- Ningún porcentaje puede ser > 0.50 o < -0.50
+- tipo: "mensual" si rango ≥ 28 días, "semanal" si < 28
+- fecha_inicio: primera fecha del encabezado
+- comentarios: de "Meteorología y comentarios" o null
 
 TEXTO:
 ${text.slice(0,8000)}`;
@@ -1216,43 +1167,37 @@ ${text.slice(0,8000)}`;
     headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,messages:[{role:'user',content:prompt}]})
   });
-  if(!res.ok){const t=await res.text();throw new Error('API '+res.status);}
+  if(!res.ok) throw new Error('API '+res.status);
   const data=await res.json();
   if(data.error) throw new Error(data.error.message||'API error');
   const raw=(data.content||[]).map(b=>b.text||'').join('').trim();
 
-  // Extraer JSON robusto: buscar el primer { y último }
   const i1=raw.indexOf('{');
   const i2=raw.lastIndexOf('}');
-  if(i1<0||i2<=i1) throw new Error('No se encontró JSON en la respuesta');
+  if(i1<0||i2<=i1) throw new Error('No se encontró JSON');
   let p;
   try{p=JSON.parse(raw.slice(i1,i2+1));}catch(e){throw new Error('JSON inválido');}
 
-  // VALIDACIÓN 1: porcentajes en rango
+  // VALIDACIÓN porcentajes
   const pctFields=['teorico_food','teorico_paper','tmas_food','tmas_paper','real_food','real_paper','basura_food','basura_paper','cempl_food','cempl_paper','desv_food','desv_paper','desv_total','rendim_pct'];
   for(const f of pctFields){
     if(p[f]!=null && (p[f]>0.50 || p[f]<-0.50)){
-      throw new Error('Valor sospechoso en '+f+': '+(p[f]*100).toFixed(0)+'% — posible euro en vez de %');
+      throw new Error('Valor sospechoso en '+f+': '+(p[f]*100).toFixed(0)+'%');
     }
   }
-
-  // VALIDACIÓN 2: restaurante válido
+  // VALIDACIÓN restaurante
   const validRests=['Arganda','Futura','Urba','La Gavia','Vicálvaro'];
   if(!validRests.includes(p.restaurante)){
-    // Intentar mapear por store number
     const storeMap={'551':'Arganda','524':'Futura','390':'Urba','484':'La Gavia','1208':'Vicálvaro'};
     if(storeFromText && storeMap[storeFromText]) p.restaurante=storeMap[storeFromText];
     else throw new Error('Restaurante no reconocido: '+p.restaurante);
   }
+  if(!p.fecha_inicio||!p.fecha_fin) throw new Error('Fechas no extraídas');
+  if(!p.real_food || p.real_food<0.15 || p.real_food>0.45) throw new Error('real_food fuera de rango');
 
-  // VALIDACIÓN 3: fechas obligatorias
-  if(!p.fecha_inicio||!p.fecha_fin) throw new Error('Fechas no extraídas del informe');
-
-  // VALIDACIÓN 4: real_food debe existir y ser razonable
-  if(!p.real_food || p.real_food<0.15 || p.real_food>0.45) throw new Error('real_food fuera de rango: '+p.real_food);
-
-  // Calcular margen y label
+  // Calcular campos derivados
   const margen=Math.round((1-(p.real_food||0)-(p.real_paper||0))*10000)/100;
+  const desv_euros_total=Math.round(((p.desv_euros_food||0)+(p.desv_euros_paper||0))*100)/100;
   const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   let periodo_label='';
   if(p.tipo==='mensual'){
@@ -1265,29 +1210,25 @@ ${text.slice(0,8000)}`;
     } else periodo_label=p.periodo;
   }
 
-  const entry={id:String(Date.now())+'-'+String(Math.random()).slice(2,6),fname,...p,margen,periodo_label,ts:new Date().toISOString()};
+  const entry={id:String(Date.now())+'-'+String(Math.random()).slice(2,6),fname,...p,margen,desv_euros_total,periodo_label,hasPdf:!!pdfBase64,ts:new Date().toISOString()};
 
-  // DEDUPLICACIÓN segura: solo sobreescribir si TODAS las claves coinciden y no son vacías
+  // DEDUPLICACIÓN segura
   let dup=-1;
   if(entry.restaurante && entry.fecha_inicio && entry.fecha_fin){
-    dup=costes.findIndex(e=>
-      e.restaurante===entry.restaurante &&
-      e.fecha_inicio===entry.fecha_inicio &&
-      e.fecha_fin===entry.fecha_fin
-    );
+    dup=costes.findIndex(e=>e.restaurante===entry.restaurante&&e.fecha_inicio===entry.fecha_inicio&&e.fecha_fin===entry.fecha_fin);
   }
   if(dup>=0){
-    const oldId=costes[dup].id;
-    entry.id=oldId; // mantener el ID para no crear duplicados
+    entry.id=costes[dup].id;
     costes[dup]=entry;
-    console.log('Actualizado:',entry.restaurante,entry.periodo_label);
   } else {
     costes.push(entry);
-    console.log('Nuevo:',entry.restaurante,entry.periodo_label,'(total:',costes.length,')');
   }
-
-  // Guardar localmente (Firebase pausado durante el procesamiento)
   try{localStorage.setItem('costes',JSON.stringify(costes));}catch(e){}
+
+  // Guardar PDF en Firebase por separado (no en costes para no sobrecargar)
+  if(pdfBase64 && fbDb){
+    try{fbDb.ref('pdfs/'+entry.id).set({data:pdfBase64,fname,ts:entry.ts});}catch(e){console.warn('Error guardando PDF:',e);}
+  }
 
   if(st){
     const count=costes.filter(e=>e.restaurante===entry.restaurante).length;
@@ -1416,13 +1357,16 @@ function renderCostesRest(){
   }
 
   let html=`
-  <div class="card"><div class="grid3" style="margin-bottom:14px;">
-    <div class="metric"><div class="metric-label">Real food % · último</div><div class="metric-val">${pct(last.real_food)}</div><div class="metric-sub">media semanal ${pct(avg('real_food'))}</div></div>
-    <div class="metric"><div class="metric-label">Real papel % · último</div><div class="metric-val">${pct(last.real_paper)}</div><div class="metric-sub">media semanal ${pct(avg('real_paper'))}</div></div>
-    <div class="metric green"><div class="metric-label">Margen bruto</div><div class="metric-val">${last.margen.toFixed(2)}%</div><div class="metric-sub">media semanal ${avg('margen').toFixed(2)}%</div></div>
-    <div class="metric"><div class="metric-label">Desviación total</div><div class="metric-val" style="color:${colorN(last.desv_total)}">${pct(last.desv_total)}</div></div>
-    <div class="metric"><div class="metric-label">Basura total</div><div class="metric-val">${pct((last.basura_food||0)+(last.basura_paper||0))}</div></div>
-    <div class="metric ${(last.rendim_valor||0)<0?'red':'green'}"><div class="metric-label">Rendimiento</div><div class="metric-val">${last.rendim_valor!=null?Math.round(last.rendim_valor)+'€':'—'}</div></div>
+  <div class="card"><div class="grid3" style="margin-bottom:8px;">
+    <div class="metric"><div class="metric-label">Real food % · último</div><div class="metric-val">${pct(last.real_food)}</div><div class="metric-sub">promedio mes ${pct(avg('real_food'))}</div></div>
+    <div class="metric"><div class="metric-label">Real papel % · último</div><div class="metric-val">${pct(last.real_paper)}</div><div class="metric-sub">promedio mes ${pct(avg('real_paper'))}</div></div>
+    <div class="metric green"><div class="metric-label">Margen bruto</div><div class="metric-val">${last.margen.toFixed(2)}%</div><div class="metric-sub">promedio mes ${avg('margen').toFixed(2)}%</div></div>
+  </div>
+  <div class="grid4" style="margin-bottom:14px;">
+    <div class="metric"><div class="metric-label">Desviación total %</div><div class="metric-val" style="color:${colorN(last.desv_total)}">${pct(last.desv_total)}</div><div class="metric-sub">promedio mes ${pct(avg('desv_total'))}</div></div>
+    <div class="metric"><div class="metric-label">Rendimiento % comida</div><div class="metric-val" style="color:${colorN(last.rendim_pct)}">${pct(last.rendim_pct)}</div><div class="metric-sub">promedio mes ${pct(avg('rendim_pct'))}</div></div>
+    <div class="metric"><div class="metric-label">Basura total</div><div class="metric-val">${pct((last.basura_food||0)+(last.basura_paper||0))}</div><div class="metric-sub">promedio mes ${pct(weeklyEntries.reduce((s,e)=>s+(e.basura_food||0)+(e.basura_paper||0),0)/n)}</div></div>
+    <div class="metric ${(last.desv_euros_total||0)<0?'red':'green'}"><div class="metric-label">Impacto monetario</div><div class="metric-val">${last.desv_euros_total!=null?Math.round(last.desv_euros_total)+'€':'—'}</div><div class="metric-sub">promedio mes ${Math.round(weeklyEntries.reduce((s,e)=>s+(e.desv_euros_total||0),0)/n)}€</div></div>
   </div>
   ${weeklyEntries.length?`<div class="chart-wrap"><canvas id="cr-main"></canvas></div>`:''}
   </div>
@@ -1443,7 +1387,7 @@ function renderCostesRest(){
         return`<button onclick="activeCosteMonth='${m}';selectedAnalysisEntry=null;renderCostesRest();" style="font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid ${m===activeCosteMonth?'var(--yellow-dark)':'var(--border-strong)'};background:${m===activeCosteMonth?'var(--yellow)':hasData?'var(--surface)':'var(--bg)'};color:${m===activeCosteMonth?'#1B3A14':hasData?'var(--text)':'var(--text-faint)'};cursor:pointer;font-weight:${m===activeCosteMonth?'700':'500'};">${monthNames[i]}</button>`;
       }).join('')}
     </div>
-    <div class="tbl-scroll"><table class="tbl"><thead><tr><th>Período</th><th>Real food%</th><th>Real pap%</th><th>Margen%</th><th>Teórico food%</th><th>Teórico pap%</th><th>T+extras food%</th><th>T+extras pap%</th><th>Basura%</th><th>C.empl%</th><th>Desv food%</th><th>Desv pap%</th><th>Desv total%</th><th>Rendim €</th><th>Rendim %</th><th>Comentarios</th><th></th></tr></thead>
+    <div class="tbl-scroll"><table class="tbl"><thead><tr><th>Período</th><th>Real food%</th><th>Real pap%</th><th>Margen%</th><th>Teórico food%</th><th>Teórico pap%</th><th>Basura%</th><th>C.empl%</th><th>Desv total%</th><th>Rendim %</th><th>Impacto €</th><th>Comentarios</th><th></th><th></th></tr></thead>
     <tbody>
     ${monthEntries.length?monthEntries.slice().reverse().map(e=>`<tr class="coste-row" id="crow-${e.id}" onclick="selectAnalysisEntry('${e.id}')" style="cursor:pointer;${selectedAnalysisEntry&&String(selectedAnalysisEntry.id)===String(e.id)?'background:var(--yellow-light);':''}">
       <td style="white-space:nowrap;font-weight:${e.tipo==='mensual'?'700':'400'};">${e.periodo_label||e.periodo}${e.tipo==='mensual'?` <span class="badge b-yellow" style="font-size:10px;">mes</span>`:''}</td>
@@ -1452,18 +1396,15 @@ function renderCostesRest(){
       <td><span class="badge b-ok">${e.margen.toFixed(2)}%</span></td>
       <td>${pct(e.teorico_food)}</td>
       <td>${pct(e.teorico_paper)}</td>
-      <td>${pct(e.tmas_food)}</td>
-      <td>${pct(e.tmas_paper)}</td>
-      <td>${pct(e.basura_food)}</td>
+      <td>${pct((e.basura_food||0)+(e.basura_paper||0))}</td>
       <td>${pct(e.cempl_food)}</td>
-      <td style="color:${colorN(e.desv_food)}">${pct(e.desv_food)}</td>
-      <td style="color:${colorN(e.desv_paper)}">${pct(e.desv_paper)}</td>
       <td style="color:${colorN(e.desv_total)};font-weight:600;">${pct(e.desv_total)}</td>
-      <td style="color:${colorN(e.rendim_valor)};font-weight:600;">${e.rendim_valor!=null?Math.round(e.rendim_valor)+'€':'—'}</td>
-      <td>${e.rendim_pct!=null?pct(e.rendim_pct):'—'}</td>
-      <td style="font-size:11px;color:var(--text-faint);max-width:140px;">${e.comentarios||''}</td>
+      <td style="color:${colorN(e.rendim_pct)}">${pct(e.rendim_pct)}</td>
+      <td style="color:${colorN(e.desv_euros_total)};font-weight:600;">${e.desv_euros_total!=null?Math.round(e.desv_euros_total)+'€':'—'}</td>
+      <td style="font-size:11px;color:var(--text-faint);max-width:120px;">${e.comentarios||''}</td>
+      <td>${e.hasPdf?`<button onclick="event.stopPropagation();downloadPdf('${e.id}','${e.fname||'informe.pdf'}')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text-muted);font-size:11px;padding:2px 6px;" title="Descargar PDF">📄</button>`:''}</td>
       <td><button onclick="event.stopPropagation();deleteCoste('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:17px;line-height:1;padding:0 4px;" title="Eliminar">×</button></td>
-    </tr>`).join(''):`<tr><td colspan="17" style="padding:12px;color:var(--text-faint);">Sin informes para este mes.</td></tr>`}
+    </tr>`).join(''):`<tr><td colspan="14" style="padding:12px;color:var(--text-faint);">Sin informes para este mes.</td></tr>`}
     </tbody></table></div>
   </div>`;
 
@@ -1501,46 +1442,57 @@ function renderCostesComp(){
 }
 function renderCostesTabla(){
   const tb=document.getElementById('costes-tbody');if(!tb)return;
-  if(!costes.length){tb.innerHTML='<tr><td colspan="15" style="padding:12px;color:var(--text-faint);">Sin datos aún.</td></tr>';return;}
-  const sorted=[...costes].sort((a,b)=>a.periodo.localeCompare(b.periodo)||a.restaurante.localeCompare(b.restaurante));
+  if(!costes.length){tb.innerHTML='<tr><td colspan="14" style="padding:12px;color:var(--text-faint);">Sin datos aún.</td></tr>';return;}
+  const sorted=[...costes].sort((a,b)=>(a.periodo||'').localeCompare(b.periodo||'')||(a.restaurante||'').localeCompare(b.restaurante||''));
   tb.innerHTML=sorted.map(e=>`<tr>
     <td style="white-space:nowrap;">${e.periodo_label||e.periodo}${e.tipo==='mensual'?` <span class="badge b-yellow" style="font-size:10px;">mes</span>`:''}</td>
     <td>${e.restaurante}</td>
-    <td><span class="badge ${bc(e.real_food,0.28)}">${pct(e.real_food)}</span></td>
+    <td><span class="badge ${bc(e.real_food,0.25)}">${pct(e.real_food)}</span></td>
     <td><span class="badge ${bc(e.real_paper,0.03)}">${pct(e.real_paper)}</span></td>
     <td><span class="badge b-ok">${e.margen.toFixed(2)}%</span></td>
-    <td>${pct(e.teorico_food)}</td><td>${pct(e.teorico_paper)}</td>
-    <td>${pct(e.basura_food)}</td><td>${pct(e.cempl_food)}</td>
-    <td style="color:${colorN(e.desv_food)}">${pct(e.desv_food)}</td>
-    <td style="color:${colorN(e.desv_paper)}">${pct(e.desv_paper)}</td>
+    <td>${pct(e.teorico_food)}</td>
+    <td>${pct((e.basura_food||0)+(e.basura_paper||0))}</td>
+    <td>${pct(e.cempl_food)}</td>
     <td style="color:${colorN(e.desv_total)};font-weight:600;">${pct(e.desv_total)}</td>
-    <td style="color:${colorN(e.rendim_valor)};font-weight:600;">${e.rendim_valor!=null?Math.round(e.rendim_valor)+'€':'—'}</td>
-    <td>${e.rendim_pct!=null?pct(e.rendim_pct):'—'}</td>
-    <td style="font-size:11px;color:var(--text-faint);max-width:140px;">${e.comentarios||''}</td>
+    <td style="color:${colorN(e.rendim_pct)}">${pct(e.rendim_pct)}</td>
+    <td style="color:${colorN(e.desv_euros_total)};font-weight:600;">${e.desv_euros_total!=null?Math.round(e.desv_euros_total)+'€':'—'}</td>
+    <td style="font-size:11px;color:var(--text-faint);max-width:120px;">${e.comentarios||''}</td>
+    <td>${e.hasPdf?`<button onclick="downloadPdf('${e.id}','${e.fname||'informe.pdf'}')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text-muted);font-size:11px;padding:2px 6px;">📄</button>`:''}</td>
     <td><button onclick="deleteCoste('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:17px;line-height:1;padding:0 4px;" title="Eliminar">×</button></td>
   </tr>`).join('');
 }
-function deleteCoste(id){costes=costes.filter(e=>String(e.id)!==String(id));sv('costes',costes);renderCostesRest();renderCostesTabla();updateCostesCount();}
+function deleteCoste(id){costes=costes.filter(e=>String(e.id)!==String(id));sv('costes',costes);if(fbDb)try{fbDb.ref('pdfs/'+id).remove();}catch(e){}renderCostesRest();renderCostesTabla();updateCostesCount();}
+
+function downloadPdf(id,fname){
+  if(!fbDb){alert('Firebase no disponible');return;}
+  updateSyncStatus('syncing');
+  fbDb.ref('pdfs/'+id).once('value',snap=>{
+    updateSyncStatus('synced');
+    const val=snap.val();
+    if(!val||!val.data){alert('PDF no encontrado en la nube. Puede que se haya subido antes de activar Firebase.');return;}
+    const link=document.createElement('a');
+    link.href='data:application/pdf;base64,'+val.data;
+    link.download=fname||'informe.pdf';
+    link.click();
+  });
+}
 function clearCostes(){if(!confirm('¿Borrar todos los datos de costes?'))return;costes=[];sv('costes',costes);renderCostesRest();renderCostesTabla();updateCostesCount();}
 function exportExcel(){
   if(!costes.length){alert('Sin datos para exportar.');return;}
-  const headers=['Período','Restaurante','Real food %','Real papel %','Margen bruto %','Teórico food %','Teórico papel %','T+extras food %','T+extras papel %','Basura food %','C.empleados food %','Desv food %','Desv papel %','Desv total %','Rendimiento €','Rendimiento %','Comentarios'];
-  const rows=[...costes].sort((a,b)=>a.periodo.localeCompare(b.periodo)||a.restaurante.localeCompare(b.restaurante)).map(e=>[
-    e.periodo,e.restaurante,
+  const headers=['Período','Restaurante','Real food %','Real papel %','Margen bruto %','Teórico food %','Basura total %','C.empleados %','Desv total %','Rendim % comida','Impacto monetario €','Desv € comida','Desv € papel','Comentarios'];
+  const rows=[...costes].sort((a,b)=>(a.periodo||'').localeCompare(b.periodo||'')||(a.restaurante||'').localeCompare(b.restaurante||'')).map(e=>[
+    e.periodo_label||e.periodo,e.restaurante,
     e.real_food!=null?(e.real_food*100).toFixed(2):'',
     e.real_paper!=null?(e.real_paper*100).toFixed(2):'',
     e.margen!=null?e.margen.toFixed(2):'',
     e.teorico_food!=null?(e.teorico_food*100).toFixed(2):'',
-    e.teorico_paper!=null?(e.teorico_paper*100).toFixed(2):'',
-    e.tmas_food!=null?(e.tmas_food*100).toFixed(2):'',
-    e.tmas_paper!=null?(e.tmas_paper*100).toFixed(2):'',
-    e.basura_food!=null?(e.basura_food*100).toFixed(2):'',
+    (((e.basura_food||0)+(e.basura_paper||0))*100).toFixed(2),
     e.cempl_food!=null?(e.cempl_food*100).toFixed(2):'',
-    e.desv_food!=null?(e.desv_food*100).toFixed(2):'',
-    e.desv_paper!=null?(e.desv_paper*100).toFixed(2):'',
     e.desv_total!=null?(e.desv_total*100).toFixed(2):'',
-    e.rendim_valor!=null?e.rendim_valor.toFixed(0):'',
     e.rendim_pct!=null?(e.rendim_pct*100).toFixed(2):'',
+    e.desv_euros_total!=null?e.desv_euros_total.toFixed(0):'',
+    e.desv_euros_food!=null?e.desv_euros_food.toFixed(0):'',
+    e.desv_euros_paper!=null?e.desv_euros_paper.toFixed(0):'',
     e.comentarios||''
   ]);
   const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');
@@ -1965,6 +1917,5 @@ function init(){
 }
 init();
 </script>
-
-
-</body></html>
+</body>
+</html>
