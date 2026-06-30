@@ -530,13 +530,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
 
 <!-- VELILLA -->
 <div class="page" id="page-velilla">
-  <div class="page-header"><h2>Proyecto Velilla</h2><p>Apertura · hitos · reuniones · acciones</p></div>
-  <div class="qcap">
-    <input id="vel-input" placeholder="Añadir nota, acción o reunión..." onkeydown="if(event.key==='Enter')velAdd()" style="flex:1;"/>
-    <select id="vel-type" style="width:auto;"><option value="accion">Acción</option><option value="nota">Nota</option><option value="reunion">Reunión</option><option value="hito">Hito</option></select>
-    <button class="btn btn-primary" onclick="velAdd()">Guardar</button>
-  </div>
-  <div class="grid2">
+  <div class="page-header"><h2>Proyecto Velilla</h2><p>Apertura · hitos · selección de personal</p></div>
+  
+  <div class="grid2" style="margin-bottom:14px;">
     <div class="card">
       <div class="card-header"><div class="card-title">Hitos del proyecto</div><button class="btn btn-sm" onclick="addMilestone()">+ Hito</button></div>
       <div id="vel-milestones">
@@ -548,6 +544,46 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
       </div>
     </div>
     <div class="card"><div class="card-header"><div class="card-title">Notas y acciones</div></div><div id="vel-notes"></div></div>
+  </div>
+
+  <!-- SELECCIÓN DE PERSONAL -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Selección de personal</div>
+      <button class="btn btn-yellow" onclick="openCandidatoModal()" style="font-weight:600;">+ Añadir candidato</button>
+    </div>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px;">
+      <button class="vtab active" id="cand-filter-todos" onclick="filterCandidatos('todos')">Todos</button>
+      <button class="vtab" id="cand-filter-pending" onclick="filterCandidatos('pending')">⏳ Pendientes</button>
+      <button class="vtab" id="cand-filter-up" onclick="filterCandidatos('up')">👍 Positivos</button>
+      <button class="vtab" id="cand-filter-down" onclick="filterCandidatos('down')">👎 Descartados</button>
+    </div>
+    <div id="candidatos-list"></div>
+  </div>
+</div>
+
+<!-- MODAL CANDIDATO -->
+<div class="modal-overlay" id="candidato-modal">
+  <div class="modal" style="width:480px;">
+    <h3 id="cand-modal-title">Nuevo candidato</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+      <div class="field"><label>Nombre completo</label><input id="cand-name" placeholder="Ej: María García López"/></div>
+      <div style="display:flex;gap:8px;">
+        <div class="field" style="flex:1;"><label>Teléfono (opc.)</label><input id="cand-phone" placeholder="612 345 678"/></div>
+        <div class="field" style="flex:1;"><label>Puesto</label>
+          <select id="cand-position"><option value="crew">Crew</option><option value="entrenador">Entrenador/a</option><option value="encargado">Encargado/a</option><option value="gerente">Gerente</option><option value="otro">Otro</option></select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div class="field" style="flex:1;"><label>Fecha entrevista</label><input type="date" id="cand-date"/></div>
+        <div class="field" style="width:120px;"><label>Hora</label><input type="time" id="cand-hour"/></div>
+      </div>
+      <div class="field"><label>Observaciones</label><textarea id="cand-obs" rows="4" placeholder="Experiencia, impresiones, disponibilidad..." style="resize:vertical;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeCandidatoModal()">Cancelar</button>
+      <button class="btn btn-yellow" id="cand-save-btn" onclick="saveCandidato()">Guardar</button>
+    </div>
   </div>
 </div>
 
@@ -618,6 +654,9 @@ let mc=ld('mc',{campaigns:[]});
 let velNotes=ld('vel_notes',[]);
 let reuniones=ld('reuniones',[]);
 let editingReunionId=null;
+let velCandidatos=ld('vel_candidatos',[]);
+let editingCandId=null;
+let candFilter='todos';
 let instrNotes=ld('instr_notes',[]);
 let weekNotes=ld('week_notes',{});
 let activeNoteTab='Arganda';
@@ -642,7 +681,7 @@ function goTo(id){
   if(id==='costes'){renderCostesRBar();renderCostesRest();updateCostesCount();}
   if(id==='mcaccion'){renderMCHist();checkMCAlerts();}
   if(id==='inicio')renderInicio();
-  if(id==='velilla')renderVelNotes();
+  if(id==='velilla'){renderVelNotes();renderCandidatos();}
   if(id==='instrucciones')renderInstrHistorial();
   if(id==='reuniones')renderReunionList();
 }
@@ -1872,8 +1911,116 @@ function renderReunionList(){
   }).join('');
 }
 
+// CANDIDATOS VELILLA
+function openCandidatoModal(id){
+  if(id){
+    const c=velCandidatos.find(x=>String(x.id)===String(id));
+    if(!c) return;
+    editingCandId=id;
+    document.getElementById('cand-modal-title').textContent='Editar candidato';
+    document.getElementById('cand-name').value=c.name||'';
+    document.getElementById('cand-phone').value=c.phone||'';
+    document.getElementById('cand-position').value=c.position||'crew';
+    document.getElementById('cand-date').value=c.date||'';
+    document.getElementById('cand-hour').value=c.hour||'';
+    document.getElementById('cand-obs').value=c.obs||'';
+    document.getElementById('cand-save-btn').textContent='Actualizar';
+  } else {
+    editingCandId=null;
+    document.getElementById('cand-modal-title').textContent='Nuevo candidato';
+    document.getElementById('cand-name').value='';
+    document.getElementById('cand-phone').value='';
+    document.getElementById('cand-position').value='crew';
+    document.getElementById('cand-date').value='';
+    document.getElementById('cand-hour').value='';
+    document.getElementById('cand-obs').value='';
+    document.getElementById('cand-save-btn').textContent='Guardar';
+  }
+  document.getElementById('candidato-modal').classList.add('show');
+  setTimeout(()=>document.getElementById('cand-name').focus(),100);
+}
+function closeCandidatoModal(){document.getElementById('candidato-modal').classList.remove('show');editingCandId=null;}
+function saveCandidato(){
+  const name=document.getElementById('cand-name').value.trim();
+  if(!name){alert('Pon al menos el nombre');return;}
+  const data={
+    name,
+    phone:document.getElementById('cand-phone').value.trim(),
+    position:document.getElementById('cand-position').value,
+    date:document.getElementById('cand-date').value,
+    hour:document.getElementById('cand-hour').value,
+    obs:document.getElementById('cand-obs').value,
+  };
+  if(editingCandId){
+    const idx=velCandidatos.findIndex(c=>String(c.id)===String(editingCandId));
+    if(idx>=0) velCandidatos[idx]={...velCandidatos[idx],...data,updated:new Date().toISOString()};
+  } else {
+    velCandidatos.push({id:String(Date.now()),rating:null,...data,created:new Date().toISOString()});
+  }
+  sv('vel_candidatos',velCandidatos);
+  closeCandidatoModal();
+  renderCandidatos();
+}
+function rateCandidato(id,rating){
+  const c=velCandidatos.find(x=>String(x.id)===String(id));
+  if(!c) return;
+  c.rating=c.rating===rating?null:rating; // toggle si pulsa el mismo
+  sv('vel_candidatos',velCandidatos);
+  renderCandidatos();
+}
+function deleteCandidato(id){
+  if(!confirm('¿Eliminar este candidato?'))return;
+  velCandidatos=velCandidatos.filter(c=>String(c.id)!==String(id));
+  sv('vel_candidatos',velCandidatos);
+  renderCandidatos();
+}
+function filterCandidatos(f){
+  candFilter=f;
+  document.querySelectorAll('#page-velilla .vtab').forEach(t=>t.classList.remove('active'));
+  const btn=document.getElementById('cand-filter-'+f);
+  if(btn) btn.classList.add('active');
+  renderCandidatos();
+}
+function renderCandidatos(){
+  const div=document.getElementById('candidatos-list');if(!div)return;
+  let list=[...velCandidatos].sort((a,b)=>(a.date||'9').localeCompare(b.date||'9')||(a.hour||'').localeCompare(b.hour||''));
+  if(candFilter==='up') list=list.filter(c=>c.rating==='up');
+  else if(candFilter==='down') list=list.filter(c=>c.rating==='down');
+  else if(candFilter==='pending') list=list.filter(c=>!c.rating);
+  if(!list.length){div.innerHTML=`<p style="font-size:13px;color:var(--text-faint);">${candFilter!=='todos'?'Sin candidatos en esta categoría.':'Sin candidatos aún. Pulsa "+ Añadir candidato" para empezar.'}</p>`;return;}
+  const posLabels={crew:'Crew',entrenador:'Entrenador/a',encargado:'Encargado/a',gerente:'Gerente',otro:'Otro'};
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  div.innerHTML=list.map(c=>{
+    const ratingBg=c.rating==='up'?'var(--green-light)':c.rating==='down'?'var(--red-light)':'var(--surface)';
+    const ratingBorder=c.rating==='up'?'#9ED4B8':c.rating==='down'?'#F0AAAA':'var(--border)';
+    let dateLabel='Sin fecha de entrevista';
+    if(c.date){const d=new Date(c.date+'T12:00:00');dateLabel=d.getDate()+' '+months[d.getMonth()]+(c.hour?' · '+c.hour:'');}
+    return`<div style="border:1px solid ${ratingBorder};border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;background:${ratingBg};transition:all .15s;">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span style="font-size:16px;font-weight:700;color:var(--text);">${c.name}</span>
+            <span class="badge b-neu" style="font-size:10px;">${posLabels[c.position]||c.position}</span>
+            ${c.phone?`<span style="font-size:12px;color:var(--text-faint);">📞 ${c.phone}</span>`:''}
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">🗓 ${dateLabel}</div>
+          ${c.obs?`<div style="font-size:13px;color:var(--text);line-height:1.5;background:rgba(0,0,0,0.03);padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);">${c.obs}</div>`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:center;flex-shrink:0;">
+          <button onclick="event.stopPropagation();rateCandidato('${c.id}','up')" style="font-size:24px;background:${c.rating==='up'?'var(--green)':'var(--bg)'};border:2px solid ${c.rating==='up'?'var(--green)':'var(--border)'};border-radius:8px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;${c.rating==='up'?'color:#fff;':''}">👍</button>
+          <button onclick="event.stopPropagation();rateCandidato('${c.id}','down')" style="font-size:24px;background:${c.rating==='down'?'var(--red)':'var(--bg)'};border:2px solid ${c.rating==='down'?'var(--red)':'var(--border)'};border-radius:8px;width:42px;height:42px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;${c.rating==='down'?'color:#fff;':''}">👎</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end;">
+        <button onclick="openCandidatoModal('${c.id}')" style="background:none;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:11px;padding:4px 10px;color:var(--text-muted);">✏ Editar</button>
+        <button onclick="deleteCandidato('${c.id}')" style="background:none;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:11px;padding:4px 10px;color:var(--text-faint);">× Eliminar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // FIREBASE SYNC LISTENERS
-const SYNC_KEYS=['costes','cal_tasks','cal_quick_notes','week_notes','mc','reuniones','vel_notes','instr_notes','visits','notes'];
+const SYNC_KEYS=['costes','cal_tasks','cal_quick_notes','week_notes','mc','reuniones','vel_notes','instr_notes','visits','notes','vel_candidatos'];
 function setupFirebaseListeners(){
   if(!fbDb) return;
   SYNC_KEYS.forEach(k=>{
@@ -1894,6 +2041,7 @@ function setupFirebaseListeners(){
           case 'instr_notes':instrNotes=val||[];break;
           case 'visits':visits=val||{};break;
           case 'notes':notes=val||{};break;
+          case 'vel_candidatos':velCandidatos=val||[];break;
         }
         renderCalendar();syncOneNote();renderMiniRestGrid();
       }catch(e){}
