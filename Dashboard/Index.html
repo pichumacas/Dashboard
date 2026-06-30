@@ -1285,40 +1285,68 @@ function buildAnalysisHTML(e, weeklyEntries){
       <div style="font-size:20px;width:28px;text-align:center;">${ch.ok?'✓':'✗'}</div>
     </div>`).join('');
 
-  // BLOQUE 2: Evolución coste de comida (real vs teórico)
-  html+=`<div style="font-size:11px;font-weight:700;color:var(--text-faint);letter-spacing:0.07em;text-transform:uppercase;padding:18px 14px 8px 14px;">Coste de comida · real vs teórico</div>`;
-  html+=`<div style="padding:0 14px 6px;display:flex;gap:14px;">
+  // BLOQUE 2: Coste comida real vs teórico completo
+  html+=`<div style="font-size:11px;font-weight:700;color:var(--text-faint);letter-spacing:0.07em;text-transform:uppercase;padding:18px 14px 8px 14px;">Coste de comida · real vs teórico completo</div>`;
+  html+=`<div style="padding:0 14px 6px;display:flex;gap:10px;">
     <div style="flex:1;background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;border:1px solid var(--border);">
       <div style="font-size:11px;color:var(--text-faint);font-weight:500;margin-bottom:4px;">Real food %</div>
       <div style="font-size:22px;font-weight:700;color:var(--text);">${pct(e.real_food)}</div>
     </div>
     <div style="flex:1;background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;border:1px solid var(--border);">
-      <div style="font-size:11px;color:var(--text-faint);font-weight:500;margin-bottom:4px;">Teórico food %</div>
-      <div style="font-size:22px;font-weight:700;color:var(--text-muted);">${pct(e.teorico_food)}</div>
+      <div style="font-size:11px;color:var(--text-faint);font-weight:500;margin-bottom:4px;">Teórico completo %</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text-muted);">${pct(e.tmas_food)}</div>
     </div>
     <div style="flex:1;background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;border:1px solid var(--border);">
       <div style="font-size:11px;color:var(--text-faint);font-weight:500;margin-bottom:4px;">Diferencia</div>
-      <div style="font-size:22px;font-weight:700;color:${(e.real_food||0)>(e.teorico_food||0)?'var(--red)':'var(--green)'};">${e.real_food!=null&&e.teorico_food!=null?((e.real_food-e.teorico_food)*100).toFixed(2)+'pp':'—'}</div>
+      <div style="font-size:22px;font-weight:700;color:${(e.real_food||0)>(e.tmas_food||0)?'var(--red)':'var(--green)'};">${e.real_food!=null&&e.tmas_food!=null?((e.real_food-e.tmas_food)*100).toFixed(2)+'pp':'—'}</div>
     </div>
   </div>`;
 
-  // Mini evolución semanal si hay datos
+  // BLOQUE 3: Coste papel real vs teórico completo
+  html+=`<div style="font-size:11px;font-weight:700;color:var(--text-faint);letter-spacing:0.07em;text-transform:uppercase;padding:14px 14px 8px 14px;">Coste de papel · real vs teórico completo</div>`;
+  html+=`<div style="padding:0 14px 6px;display:flex;gap:10px;">
+    <div style="flex:1;background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;border:1px solid var(--border);">
+      <div style="font-size:11px;color:var(--text-faint);font-weight:500;margin-bottom:4px;">Real papel %</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text);">${pct(e.real_paper)}</div>
+    </div>
+    <div style="flex:1;background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;border:1px solid var(--border);">
+      <div style="font-size:11px;color:var(--text-faint);font-weight:500;margin-bottom:4px;">Teórico completo %</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text-muted);">${pct(e.tmas_paper)}</div>
+    </div>
+    <div style="flex:1;background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;border:1px solid var(--border);">
+      <div style="font-size:11px;color:var(--text-faint);font-weight:500;margin-bottom:4px;">Diferencia</div>
+      <div style="font-size:22px;font-weight:700;color:${(e.real_paper||0)>(e.tmas_paper||0)?'var(--red)':'var(--green)'};">${e.real_paper!=null&&e.tmas_paper!=null?((e.real_paper-e.tmas_paper)*100).toFixed(2)+'pp':'—'}</div>
+    </div>
+  </div>`;
+
+  // Tabla evolución semanal comida + papel
   if(weeklyEntries&&weeklyEntries.length>1){
     html+=`<div style="padding:10px 14px 4px;">
       <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead><tr>
-          <th style="font-size:10px;font-weight:600;color:var(--text-faint);padding:4px 8px;border-bottom:1px solid var(--border);text-align:left;">Semana</th>
-          <th style="font-size:10px;font-weight:600;color:var(--text-faint);padding:4px 8px;border-bottom:1px solid var(--border);text-align:right;">Real</th>
-          <th style="font-size:10px;font-weight:600;color:var(--text-faint);padding:4px 8px;border-bottom:1px solid var(--border);text-align:right;">Teórico</th>
-          <th style="font-size:10px;font-weight:600;color:var(--text-faint);padding:4px 8px;border-bottom:1px solid var(--border);text-align:right;">Dif.</th>
+          <th style="font-size:10px;font-weight:600;color:var(--text-faint);padding:4px 6px;border-bottom:2px solid var(--border);text-align:left;">Semana</th>
+          <th colspan="3" style="font-size:10px;font-weight:600;color:#C4501A;padding:4px 6px;border-bottom:2px solid #C4501A;text-align:center;">Comida</th>
+          <th colspan="3" style="font-size:10px;font-weight:600;color:#2563EB;padding:4px 6px;border-bottom:2px solid #2563EB;text-align:center;">Papel</th>
+        </tr><tr>
+          <th style="font-size:9px;color:var(--text-faint);padding:3px 6px;border-bottom:1px solid var(--border);text-align:left;"></th>
+          <th style="font-size:9px;color:var(--text-faint);padding:3px 6px;border-bottom:1px solid var(--border);text-align:right;">Real</th>
+          <th style="font-size:9px;color:var(--text-faint);padding:3px 6px;border-bottom:1px solid var(--border);text-align:right;">T.comp</th>
+          <th style="font-size:9px;color:var(--text-faint);padding:3px 6px;border-bottom:1px solid var(--border);text-align:right;">Dif.</th>
+          <th style="font-size:9px;color:var(--text-faint);padding:3px 6px;border-bottom:1px solid var(--border);text-align:right;">Real</th>
+          <th style="font-size:9px;color:var(--text-faint);padding:3px 6px;border-bottom:1px solid var(--border);text-align:right;">T.comp</th>
+          <th style="font-size:9px;color:var(--text-faint);padding:3px 6px;border-bottom:1px solid var(--border);text-align:right;">Dif.</th>
         </tr></thead>
         <tbody>${weeklyEntries.map(w=>{
-          const dif=((w.real_food||0)-(w.teorico_food||0))*100;
+          const difF=((w.real_food||0)-(w.tmas_food||0))*100;
+          const difP=((w.real_paper||0)-(w.tmas_paper||0))*100;
           return`<tr style="${String(w.id)===String(e.id)?'background:var(--yellow-light);':''}">
-            <td style="padding:4px 8px;border-bottom:1px solid var(--border);font-weight:500;">${w.periodo_label||w.periodo}</td>
-            <td style="padding:4px 8px;border-bottom:1px solid var(--border);text-align:right;">${pct(w.real_food)}</td>
-            <td style="padding:4px 8px;border-bottom:1px solid var(--border);text-align:right;color:var(--text-muted);">${pct(w.teorico_food)}</td>
-            <td style="padding:4px 8px;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:${dif>0?'var(--red)':'var(--green)'};">${dif.toFixed(2)}pp</td>
+            <td style="padding:4px 6px;border-bottom:1px solid var(--border);font-weight:500;">${w.periodo_label||w.periodo}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right;">${pct(w.real_food)}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right;color:var(--text-muted);">${pct(w.tmas_food)}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:${difF>0?'var(--red)':'var(--green)'};">${difF.toFixed(2)}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right;">${pct(w.real_paper)}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right;color:var(--text-muted);">${pct(w.tmas_paper)}</td>
+            <td style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:${difP>0?'var(--red)':'var(--green)'};">${difP.toFixed(2)}</td>
           </tr>`}).join('')}
         </tbody>
       </table>
@@ -1376,9 +1404,9 @@ function renderCostesRest(){
   </div>
   <div class="grid4" style="margin-bottom:14px;">
     <div class="metric"><div class="metric-label">Desviación total %</div><div class="metric-val" style="color:${colorN(last.desv_total)}">${pct(last.desv_total)}</div><div class="metric-sub">promedio mes ${pct(avg('desv_total'))}</div></div>
-    <div class="metric"><div class="metric-label">Rendimiento % comida</div><div class="metric-val" style="color:${colorN(last.rendim_pct)}">${pct(last.rendim_pct)}</div><div class="metric-sub">promedio mes ${pct(avg('rendim_pct'))}</div></div>
+    <div class="metric"><div class="metric-label">Rendimiento % comida</div><div class="metric-val" style="color:${colorN(last.rendim_pct)}">${last.rendim_pct!=null?pct(last.rendim_pct):'—'}</div><div class="metric-sub">promedio mes ${n>0&&weeklyEntries.some(e=>e.rendim_pct!=null)?pct(avg('rendim_pct')):'—'}</div></div>
     <div class="metric"><div class="metric-label">Basura total</div><div class="metric-val">${pct((last.basura_food||0)+(last.basura_paper||0))}</div><div class="metric-sub">promedio mes ${pct(weeklyEntries.reduce((s,e)=>s+(e.basura_food||0)+(e.basura_paper||0),0)/n)}</div></div>
-    <div class="metric ${(last.desv_euros_total||0)<0?'red':'green'}"><div class="metric-label">Impacto monetario</div><div class="metric-val">${last.desv_euros_total!=null?Math.round(last.desv_euros_total)+'€':'—'}</div><div class="metric-sub">promedio mes ${Math.round(weeklyEntries.reduce((s,e)=>s+(e.desv_euros_total||0),0)/n)}€</div></div>
+    <div class="metric ${(last.desv_euros_total||0)<0?'red':'green'}"><div class="metric-label">Impacto monetario</div><div class="metric-val">${last.desv_euros_total!=null?Math.round(last.desv_euros_total)+'€':'—'}</div><div class="metric-sub">promedio mes ${weeklyEntries.some(e=>e.desv_euros_total!=null)?Math.round(weeklyEntries.reduce((s,e)=>s+(e.desv_euros_total||0),0)/n)+'€':'—'}</div></div>
   </div>
   ${weeklyEntries.length?`<div class="chart-wrap"><canvas id="cr-main"></canvas></div>`:''}
   </div>
@@ -1431,7 +1459,7 @@ function renderCostesRest(){
       if(x1)charts['cr1']=new Chart(x1,{type:'line',data:{labels:lbs,datasets:[
         {label:'Real food %',data:weeklyEntries.map(e=>+(e.real_food*100).toFixed(2)),borderColor:'#C4501A',tension:0.3,pointRadius:5,backgroundColor:'rgba(196,80,26,0.06)',borderWidth:2},
         {label:'Real papel %',data:weeklyEntries.map(e=>+(e.real_paper*100).toFixed(2)),borderColor:'#2563EB',tension:0.3,pointRadius:5,backgroundColor:'rgba(37,99,235,0.06)',borderWidth:2},
-        {label:'Teórico food %',data:weeklyEntries.map(e=>+(e.teorico_food*100).toFixed(2)),borderColor:'rgba(196,80,26,0.3)',borderDash:[4,4],pointRadius:0,tension:0.3}
+        {label:'Teórico completo %',data:weeklyEntries.map(e=>e.tmas_food!=null?+(e.tmas_food*100).toFixed(2):null),borderColor:'rgba(196,80,26,0.3)',borderDash:[4,4],pointRadius:0,tension:0.3,spanGaps:true}
       ]},options:copt('%')});
     },50);
   }
