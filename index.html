@@ -470,12 +470,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
         <label style="font-size:11px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Notas</label>
         <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--bg);flex:1;display:flex;flex-direction:column;">
           <div style="display:flex;gap:2px;padding:6px 10px;border-bottom:1px solid var(--border);background:var(--surface);">
-            <button onclick="document.execCommand('bold')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:14px;font-weight:800;color:var(--text);font-family:Georgia,serif;">B</button>
-            <button onclick="document.execCommand('italic')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:14px;font-style:italic;color:var(--text);font-family:Georgia,serif;">I</button>
-            <button onclick="document.execCommand('underline')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:14px;text-decoration:underline;color:var(--text);font-family:Georgia,serif;">U</button>
+            <button id="fmt-bold" onmousedown="event.preventDefault();document.execCommand('bold')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:14px;font-weight:800;color:var(--text);font-family:Georgia,serif;transition:all .1s;">B</button>
+            <button id="fmt-italic" onmousedown="event.preventDefault();document.execCommand('italic')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:14px;font-style:italic;color:var(--text);font-family:Georgia,serif;transition:all .1s;">I</button>
+            <button id="fmt-underline" onmousedown="event.preventDefault();document.execCommand('underline')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:14px;text-decoration:underline;color:var(--text);font-family:Georgia,serif;transition:all .1s;">U</button>
             <div style="width:1px;background:var(--border);margin:2px 6px;"></div>
-            <button onclick="document.execCommand('insertUnorderedList')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:13px;color:var(--text);">•</button>
-            <button onclick="document.execCommand('insertOrderedList')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:12px;color:var(--text);">1.</button>
+            <button onmousedown="event.preventDefault();document.execCommand('insertUnorderedList')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:13px;color:var(--text);">•</button>
+            <button onmousedown="event.preventDefault();document.execCommand('insertOrderedList')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:12px;color:var(--text);">1.</button>
+            <div style="width:1px;background:var(--border);margin:2px 6px;"></div>
+            <button onmousedown="event.preventDefault();document.execCommand('removeFormat')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;height:28px;font-size:11px;color:var(--text-faint);padding:0 8px;" title="Quitar formato">T̶</button>
           </div>
           <div id="reunion-notes" contenteditable="true" style="flex:1;min-height:280px;font-size:14px;line-height:1.9;padding:18px 22px;font-family:Georgia,'Times New Roman',serif;color:var(--text);outline:none;overflow-y:auto;" data-placeholder="Escribe libremente... Usa los botones de arriba para negrita, cursiva o subrayado."></div>
         </div>
@@ -2011,6 +2013,39 @@ function openEditReunion(id){
   document.getElementById('reunion-modal').classList.add('show');
 }
 function closeReunionModal(){document.getElementById('reunion-modal').classList.remove('show');editingReunionId=null;}
+
+// Detectar formato activo en el editor de notas
+document.addEventListener('selectionchange',function(){
+  const el=document.getElementById('reunion-notes');
+  if(!el||!el.contains(document.activeElement)&&document.activeElement!==el) return;
+  ['bold','italic','underline'].forEach(cmd=>{
+    const btn=document.getElementById('fmt-'+cmd);
+    if(btn){
+      const active=document.queryCommandState(cmd);
+      btn.style.background=active?'var(--yellow)':'none';
+      btn.style.borderColor=active?'var(--yellow-dark)':'var(--border)';
+    }
+  });
+});
+
+// Pegar sin formato en el editor de notas
+document.addEventListener('DOMContentLoaded',function(){
+  const initPaste=()=>{
+    const el=document.getElementById('reunion-notes');
+    if(el){
+      el.addEventListener('paste',function(e){
+        e.preventDefault();
+        const text=e.clipboardData.getData('text/plain');
+        document.execCommand('insertText',false,text);
+      });
+    }
+  };
+  // Intentar ahora y también cuando se abra el modal
+  initPaste();
+  const observer=new MutationObserver(()=>initPaste());
+  const modal=document.getElementById('reunion-modal');
+  if(modal) observer.observe(modal,{attributes:true});
+});
 function saveReunion(){
   const date=document.getElementById('reunion-date').value;
   const hour=document.getElementById('reunion-hour').value;
@@ -2201,7 +2236,16 @@ function setupFirebaseListeners(){
           case 'notes':notes=val||{};break;
           case 'vel_candidatos':velCandidatos=val||[];break;
         }
-        renderCalendar();syncOneNote();renderMiniRestGrid();
+        // Re-renderizar todo lo visible
+        try{renderCalendar();}catch(e){}
+        try{syncOneNote();}catch(e){}
+        try{renderMiniRestGrid();}catch(e){}
+        try{renderReunionList();}catch(e){}
+        try{renderCostesRest();}catch(e){}
+        try{renderCostesTabla();}catch(e){}
+        try{renderCandidatos();}catch(e){}
+        try{renderVelNotes();}catch(e){}
+        try{renderInstrHistorial();}catch(e){}
       }catch(e){}
       updateSyncStatus('synced');
     });
