@@ -2217,19 +2217,26 @@ const SYNC_KEYS=['costes','cal_tasks','cal_quick_notes','week_notes','mc','reuni
 
 function applyFirebaseData(k,val){
   if(val===null||val===undefined) return;
+  // Firebase convierte arrays a objetos {0:{},1:{},2:{}} — reconvertir a array
+  if(val&&typeof val==='object'&&!Array.isArray(val)){
+    const keys=Object.keys(val);
+    if(keys.length>0&&keys.every(k=>!isNaN(k))){
+      val=Object.values(val);
+    }
+  }
   try{localStorage.setItem(k,JSON.stringify(val));}catch(e){}
   switch(k){
-    case 'costes':costes=val||[];break;
-    case 'cal_tasks':calTasks=val||[];break;
+    case 'costes':costes=Array.isArray(val)?val:[];break;
+    case 'cal_tasks':calTasks=Array.isArray(val)?val:[];break;
     case 'cal_quick_notes':calQuickNotes=val||{};break;
     case 'week_notes':weekNotes=val||{};break;
-    case 'mc':mc=val||{campaigns:[]};break;
-    case 'reuniones':reuniones=val||[];break;
-    case 'vel_notes':velNotes=val||[];break;
-    case 'instr_notes':instrNotes=val||[];break;
+    case 'mc':mc=val||{campaigns:[]};if(mc.campaigns&&!Array.isArray(mc.campaigns))mc.campaigns=Object.values(mc.campaigns);break;
+    case 'reuniones':reuniones=Array.isArray(val)?val:[];break;
+    case 'vel_notes':velNotes=Array.isArray(val)?val:[];break;
+    case 'instr_notes':instrNotes=Array.isArray(val)?val:[];break;
     case 'visits':visits=val||{};break;
     case 'notes':notes=val||{};break;
-    case 'vel_candidatos':velCandidatos=val||[];break;
+    case 'vel_candidatos':velCandidatos=Array.isArray(val)?val:[];break;
   }
 }
 
