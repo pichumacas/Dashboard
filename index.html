@@ -2215,28 +2215,33 @@ function renderCandidatos(){
 // FIREBASE SYNC
 const SYNC_KEYS=['costes','cal_tasks','cal_quick_notes','week_notes','mc','reuniones','vel_notes','instr_notes','visits','notes','vel_candidatos'];
 
-function applyFirebaseData(k,val){
-  if(val===null||val===undefined) return;
-  // Firebase convierte arrays a objetos {0:{},1:{},2:{}} — reconvertir a array
-  if(val&&typeof val==='object'&&!Array.isArray(val)){
+function fbToArray(val){
+  if(Array.isArray(val)) return val;
+  if(val&&typeof val==='object'){
     const keys=Object.keys(val);
-    if(keys.length>0&&keys.every(k=>!isNaN(k))){
-      val=Object.values(val);
-    }
+    if(keys.length>0&&keys.every(x=>!isNaN(x))) return Object.values(val);
   }
+  return val;
+}
+
+function applyData(k,val){
+  if(val===null||val===undefined) return;
+  // Convertir objetos con claves numéricas a arrays
+  const arrayKeys=['costes','cal_tasks','reuniones','vel_notes','instr_notes','vel_candidatos'];
+  if(arrayKeys.includes(k)) val=fbToArray(val)||[];
   try{localStorage.setItem(k,JSON.stringify(val));}catch(e){}
   switch(k){
-    case 'costes':costes=Array.isArray(val)?val:[];break;
-    case 'cal_tasks':calTasks=Array.isArray(val)?val:[];break;
+    case 'costes':costes=val;break;
+    case 'cal_tasks':calTasks=val;break;
     case 'cal_quick_notes':calQuickNotes=val||{};break;
     case 'week_notes':weekNotes=val||{};break;
-    case 'mc':mc=val||{campaigns:[]};if(mc.campaigns&&!Array.isArray(mc.campaigns))mc.campaigns=Object.values(mc.campaigns);break;
-    case 'reuniones':reuniones=Array.isArray(val)?val:[];break;
-    case 'vel_notes':velNotes=Array.isArray(val)?val:[];break;
-    case 'instr_notes':instrNotes=Array.isArray(val)?val:[];break;
+    case 'mc':mc=val||{campaigns:[]};if(mc.campaigns)mc.campaigns=fbToArray(mc.campaigns)||[];break;
+    case 'reuniones':reuniones=val;break;
+    case 'vel_notes':velNotes=val;break;
+    case 'instr_notes':instrNotes=val;break;
     case 'visits':visits=val||{};break;
     case 'notes':notes=val||{};break;
-    case 'vel_candidatos':velCandidatos=Array.isArray(val)?val:[];break;
+    case 'vel_candidatos':velCandidatos=val;break;
   }
 }
 
@@ -2259,15 +2264,13 @@ function setupRealtimeListeners(){
   SYNC_KEYS.forEach(k=>{
     fbDb.ref('data/'+k).on('value',snap=>{
       if(fbSyncPaused) return;
-      const val=snap.val();
-      applyFirebaseData(k,val);
+      applyData(k,snap.val());
       renderAll();
       updateSyncStatus('synced');
     });
   });
 }
 
-// INIT
 function migrateNotesToCal(){
   let migrated=0;
   RESTS.forEach(r=>(notes[r]||[]).forEach(n=>{
@@ -2276,58 +2279,73 @@ function migrateNotesToCal(){
       if(key){const dup=calTasks.find(t=>t.text===n.text&&t.date===key);if(!dup)migrated++;n._calMigrated=true;}
     }
   }));
-  if(migrated>0){sv('notes',notes);}
+  if(migrated>0)sv('notes',notes);
 }
 
+function loadFromFirebase(){
+  return new Promise((resolve)=>{
+    if(!fbDb){resolve(false);return;}
+    fbDb.ref('data').once('value').then(snap=>{
+      const allData=snap.val();
+      if(allData&&typeof allData==='object'){
+        const keys=Object.keys(allData);
+        keys.forEach(k=>{if(SYNC_KEYS.includes(k))applyData(k,allData[k]);});
+        console.log('Firebase OK: '+keys.join(', ')+' | reuniones='+reuniones.length+' costes='+costes.length);
+        resolve(true);
+      } else {
+        // Firebase vacío: subir datos locales
+        SYNC_KEYS.forEach(k=>{
+          const v=ld(k,null);
+          if(v){
+            const hasContent=Array.isArray(v)?v.length>0:typeof v==='object'?Object.keys(v).length>0:!!v;
+            if(hasContent)fbDb.ref('data/'+k).set(v);
+          }
+        });
+        resolve(false);
+      }
+    }).catch(e=>{console.error('Firebase load error:',e);resolve(false);});
+  });
+}
+
+// INIT
 async function init(){
   try{initDate();}catch(e){}
   try{updateApiDot();}catch(e){}
   try{initNotes();}catch(e){}
 
-  // FIREBASE: cargar datos antes de renderizar
-  if(fbDb){
-    const hasLocalData=SYNC_KEYS.some(k=>{try{const v=localStorage.getItem(k);return v&&v.length>10;}catch(e){return false;}});
-    
-    if(!hasLocalData){
-      // DOMINIO NUEVO o localStorage vacío: cargar TODO de Firebase primero
-      updateSyncStatus('syncing');
-      try{
-        const snap=await fbDb.ref('data').once('value');
-        const allData=snap.val();
-        if(allData){
-          console.log('Cargando datos de Firebase...');
-          SYNC_KEYS.forEach(k=>{if(allData[k]!==undefined) applyFirebaseData(k,allData[k]);});
-          console.log('Datos cargados:', Object.keys(allData).join(', '));
-        }
-        updateSyncStatus('synced');
-      }catch(e){console.error('Error cargando Firebase:',e);updateSyncStatus('offline');}
-    } else {
-      // Hay datos locales: verificar si Firebase está vacío y subir
-      try{
-        const snap=await fbDb.ref('data').once('value');
-        if(!snap.val()){
-          console.log('Firebase vacío — subiendo datos locales...');
-          for(const k of SYNC_KEYS){const v=ld(k,null);if(v) await fbDb.ref('data/'+k).set(v);}
-        }
-        updateSyncStatus('synced');
-      }catch(e){updateSyncStatus('offline');}
-    }
+  // Paso 1: Cargar datos de Firebase
+  updateSyncStatus('syncing');
+  const loaded=await loadFromFirebase();
+  if(loaded){
+    updateSyncStatus('synced');
+  } else {
+    updateSyncStatus('offline');
   }
 
-  // Migrar notas antiguas
+  // Paso 2: Migrar notas
   try{migrateNotesToCal();}catch(e){}
 
-  // RENDERIZAR TODO (ahora con datos de Firebase cargados)
+  // Paso 3: Renderizar TODO
   renderAll();
-  
-  // McAcción
+
+  // Paso 4: McAcción
   try{
-    if(mc.campaigns&&mc.campaigns.length){renderMCCurrent(mc.campaigns[0]);document.getElementById('mc-last-label').textContent='Último: '+(mc.campaigns[0].semana||'');}
+    if(mc.campaigns&&mc.campaigns.length){
+      renderMCCurrent(mc.campaigns[0]);
+      const lbl=document.getElementById('mc-last-label');
+      if(lbl)lbl.textContent='Ultimo: '+(mc.campaigns[0].semana||'');
+    }
     checkMCAlerts();
   }catch(e){}
 
-  // Activar listeners en tiempo real para sincronizar cambios entre dispositivos
+  // Paso 5: Activar sync en tiempo real
   setupRealtimeListeners();
+
+  // Paso 6: Segundo intento de render después de 3 segundos (por si acaso)
+  setTimeout(()=>{
+    renderAll();
+    console.log('Re-render: reuniones='+reuniones.length+' costes='+costes.length);
+  },3000);
 
   // API modal
   if(!getKey())setTimeout(openModal,600);
