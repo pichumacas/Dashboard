@@ -235,6 +235,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
 .day-quick-note{font-size:13px;padding:6px 10px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);display:flex;align-items:center;gap:8px;margin-bottom:5px;}
 .day-quick-note .dqn-text{flex:1;color:var(--text);}
 .day-quick-note .dqn-del{background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:15px;padding:0;}
+[contenteditable=true]:empty:before{content:attr(data-placeholder);color:var(--text-faint);font-style:italic;pointer-events:none;}
 /* MOBILE */
 @media(max-width:768px){
   .sidebar{position:fixed;top:auto;left:0;right:0;bottom:0;width:100%;height:60px;flex-direction:row;border-right:none;border-top:1px solid rgba(255,255,255,0.1);z-index:300;}
@@ -265,6 +266,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
   #day-panel{width:100%!important;}
   /* Modals */
   .modal{width:95vw!important;max-height:90vh;overflow-y:auto;}
+  #reunion-modal .modal{width:100vw!important;max-width:100vw!important;max-height:100vh!important;border-radius:0!important;margin:0!important;}
   /* Cards */
   .card{padding:12px 14px;margin-bottom:10px;}
   .card-header{margin-bottom:10px;}
@@ -453,22 +455,35 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
 
 <!-- MODAL NUEVA REUNIÓN -->
 <div class="modal-overlay" id="reunion-modal">
-  <div class="modal" style="width:520px;">
-    <h3 id="reunion-modal-title">Nueva reunión</h3>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
-      <div style="display:flex;gap:8px;">
-        <div class="field" style="flex:1;"><label>Fecha</label><input type="date" id="reunion-date"/></div>
-        <div class="field" style="width:110px;"><label>Hora (opc.)</label><input type="time" id="reunion-hour"/></div>
+  <div class="modal" style="width:95vw;max-width:1100px;height:88vh;display:flex;flex-direction:column;border-radius:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 28px 16px;border-bottom:1px solid var(--border);flex-shrink:0;">
+      <h3 id="reunion-modal-title" style="margin:0;font-size:18px;">Nueva reunión</h3>
+      <button onclick="closeReunionModal()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--text-faint);line-height:1;">×</button>
+    </div>
+    <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;padding:20px 28px;">
+      <div style="display:flex;gap:12px;margin-bottom:18px;align-items:flex-end;">
+        <div style="flex:1;"><label style="font-size:11px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Título</label><input id="reunion-title" placeholder="Ej: Reunión alcaldesa Velilla · Contraseñas McD..." style="font-size:15px;padding:10px 14px;font-weight:500;"/></div>
+        <div style="width:160px;"><label style="font-size:11px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Fecha</label><input type="date" id="reunion-date" style="font-size:14px;padding:10px 12px;"/></div>
+        <div style="width:120px;"><label style="font-size:11px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Hora</label><input type="time" id="reunion-hour" style="font-size:14px;padding:10px 12px;"/></div>
       </div>
-      <div class="field"><label>Título</label><input id="reunion-title" placeholder="Ej: Reunión alcaldesa Velilla"/></div>
-      <div class="field">
-        <label>Notas</label>
-        <textarea id="reunion-notes" rows="8" placeholder="Escribe aquí los apuntes de la reunión..." style="resize:vertical;min-height:120px;font-size:14px;line-height:1.7;"></textarea>
+      <div>
+        <label style="font-size:11px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px;">Notas</label>
+        <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--bg);flex:1;display:flex;flex-direction:column;">
+          <div style="display:flex;gap:2px;padding:6px 10px;border-bottom:1px solid var(--border);background:var(--surface);">
+            <button onclick="document.execCommand('bold')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:14px;font-weight:800;color:var(--text);font-family:Georgia,serif;">B</button>
+            <button onclick="document.execCommand('italic')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:14px;font-style:italic;color:var(--text);font-family:Georgia,serif;">I</button>
+            <button onclick="document.execCommand('underline')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:14px;text-decoration:underline;color:var(--text);font-family:Georgia,serif;">U</button>
+            <div style="width:1px;background:var(--border);margin:2px 6px;"></div>
+            <button onclick="document.execCommand('insertUnorderedList')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:13px;color:var(--text);">•</button>
+            <button onclick="document.execCommand('insertOrderedList')" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;width:32px;height:28px;font-size:12px;color:var(--text);">1.</button>
+          </div>
+          <div id="reunion-notes" contenteditable="true" style="flex:1;min-height:280px;font-size:14px;line-height:1.9;padding:18px 22px;font-family:Georgia,'Times New Roman',serif;color:var(--text);outline:none;overflow-y:auto;" data-placeholder="Escribe libremente... Usa los botones de arriba para negrita, cursiva o subrayado."></div>
+        </div>
       </div>
     </div>
-    <div class="modal-footer">
+    <div style="padding:14px 28px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;">
       <button class="btn" onclick="closeReunionModal()">Cancelar</button>
-      <button class="btn btn-yellow" id="reunion-save-btn" onclick="saveReunion()">Guardar</button>
+      <button class="btn btn-yellow" id="reunion-save-btn" onclick="saveReunion()" style="padding:10px 24px;font-weight:600;">Guardar</button>
     </div>
   </div>
 </div>
@@ -1978,7 +1993,7 @@ function openNewReunion(){
   document.getElementById('reunion-date').value=calDateKey(new Date());
   document.getElementById('reunion-hour').value='';
   document.getElementById('reunion-title').value='';
-  document.getElementById('reunion-notes').value='';
+  document.getElementById('reunion-notes').innerHTML='';
   document.getElementById('reunion-save-btn').textContent='Guardar';
   document.getElementById('reunion-modal').classList.add('show');
   setTimeout(()=>document.getElementById('reunion-title').focus(),100);
@@ -1991,7 +2006,7 @@ function openEditReunion(id){
   document.getElementById('reunion-date').value=r.date||'';
   document.getElementById('reunion-hour').value=r.hour||'';
   document.getElementById('reunion-title').value=r.title||'';
-  document.getElementById('reunion-notes').value=r.notes||'';
+  document.getElementById('reunion-notes').innerHTML=r.notes||'';
   document.getElementById('reunion-save-btn').textContent='Actualizar';
   document.getElementById('reunion-modal').classList.add('show');
 }
@@ -2000,7 +2015,7 @@ function saveReunion(){
   const date=document.getElementById('reunion-date').value;
   const hour=document.getElementById('reunion-hour').value;
   const title=document.getElementById('reunion-title').value.trim();
-  const notes=document.getElementById('reunion-notes').value;
+  const notes=document.getElementById('reunion-notes').innerHTML.trim();
   if(!title||!date){alert('Pon al menos un título y una fecha.');return;}
   if(editingReunionId){
     const idx=reuniones.findIndex(r=>String(r.id)===String(editingReunionId));
@@ -2037,18 +2052,18 @@ function renderReunionList(){
   div.innerHTML=filtered.map(r=>{
     const d=r.date?new Date(r.date+'T12:00:00'):null;
     const dateLabel=d?dayNames[d.getDay()]+' '+d.getDate()+' de '+months[d.getMonth()]+' '+d.getFullYear():'Sin fecha';
-    const preview=(r.notes||'').slice(0,120)+(r.notes&&r.notes.length>120?'...':'');
-    return`<div class="card" style="cursor:pointer;padding:14px 18px;" onclick="openEditReunion('${r.id}')">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-        <div style="flex:1;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-            <span style="font-size:14px;">📎</span>
-            <div style="font-size:15px;font-weight:700;color:var(--text);">${r.title}</div>
+    const preview=(r.notes||'').slice(0,200)+(r.notes&&r.notes.length>200?'...':'');
+    return`<div class="card" style="cursor:pointer;padding:16px 20px;margin-bottom:8px;transition:all .12s;" onclick="openEditReunion('${r.id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:15px;">📎</span>
+            <div style="font-size:16px;font-weight:600;color:var(--text);letter-spacing:-0.2px;">${r.title}</div>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${dateLabel}${r.hour?' · '+r.hour:''}</div>
-          ${preview?`<div style="font-size:13px;color:var(--text-faint);line-height:1.5;">${preview}</div>`:''}
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">${dateLabel}${r.hour?' · '+r.hour:''}</div>
+          ${preview?`<div style="font-size:13px;font-family:Georgia,serif;color:var(--text);line-height:1.7;background:var(--bg);padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);max-height:80px;overflow:hidden;">${preview}</div>`:''}
         </div>
-        <button onclick="event.stopPropagation();deleteReunion('${r.id}')" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:18px;padding:0 4px;line-height:1;flex-shrink:0;">×</button>
+        <button onclick="event.stopPropagation();deleteReunion('${r.id}')" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:20px;padding:0 4px;line-height:1;flex-shrink:0;">×</button>
       </div>
     </div>`;
   }).join('');
