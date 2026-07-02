@@ -2212,97 +2212,117 @@ function renderCandidatos(){
   }).join('');
 }
 
-// FIREBASE SYNC LISTENERS
+// FIREBASE SYNC
 const SYNC_KEYS=['costes','cal_tasks','cal_quick_notes','week_notes','mc','reuniones','vel_notes','instr_notes','visits','notes','vel_candidatos'];
-function setupFirebaseListeners(){
+
+function applyFirebaseData(k,val){
+  if(val===null||val===undefined) return;
+  try{localStorage.setItem(k,JSON.stringify(val));}catch(e){}
+  switch(k){
+    case 'costes':costes=val||[];break;
+    case 'cal_tasks':calTasks=val||[];break;
+    case 'cal_quick_notes':calQuickNotes=val||{};break;
+    case 'week_notes':weekNotes=val||{};break;
+    case 'mc':mc=val||{campaigns:[]};break;
+    case 'reuniones':reuniones=val||[];break;
+    case 'vel_notes':velNotes=val||[];break;
+    case 'instr_notes':instrNotes=val||[];break;
+    case 'visits':visits=val||{};break;
+    case 'notes':notes=val||{};break;
+    case 'vel_candidatos':velCandidatos=val||[];break;
+  }
+}
+
+function renderAll(){
+  try{renderCalendar();}catch(e){}
+  try{syncOneNote();}catch(e){}
+  try{renderMiniRestGrid();}catch(e){}
+  try{renderReunionList();}catch(e){}
+  try{renderCostesRest();}catch(e){}
+  try{renderCostesTabla();}catch(e){}
+  try{renderCandidatos();}catch(e){}
+  try{renderVelNotes();}catch(e){}
+  try{renderInstrHistorial();}catch(e){}
+  try{updateCostesCount();}catch(e){}
+  try{checkAlerts();}catch(e){}
+}
+
+function setupRealtimeListeners(){
   if(!fbDb) return;
   SYNC_KEYS.forEach(k=>{
     fbDb.ref('data/'+k).on('value',snap=>{
-      if(fbSyncPaused) return; // NO sobreescribir mientras procesamos PDFs
+      if(fbSyncPaused) return;
       const val=snap.val();
-      if(val===null||val===undefined) return;
-      try{localStorage.setItem(k,JSON.stringify(val));}catch(e){}
-      try{
-        switch(k){
-          case 'costes':costes=val||[];break;
-          case 'cal_tasks':calTasks=val||[];break;
-          case 'cal_quick_notes':calQuickNotes=val||{};break;
-          case 'week_notes':weekNotes=val||{};break;
-          case 'mc':mc=val||{campaigns:[]};break;
-          case 'reuniones':reuniones=val||[];break;
-          case 'vel_notes':velNotes=val||[];break;
-          case 'instr_notes':instrNotes=val||[];break;
-          case 'visits':visits=val||{};break;
-          case 'notes':notes=val||{};break;
-          case 'vel_candidatos':velCandidatos=val||[];break;
-        }
-        // Re-renderizar todo lo visible
-        try{renderCalendar();}catch(e){}
-        try{syncOneNote();}catch(e){}
-        try{renderMiniRestGrid();}catch(e){}
-        try{renderReunionList();}catch(e){}
-        try{renderCostesRest();}catch(e){}
-        try{renderCostesTabla();}catch(e){}
-        try{renderCandidatos();}catch(e){}
-        try{renderVelNotes();}catch(e){}
-        try{renderInstrHistorial();}catch(e){}
-      }catch(e){}
+      applyFirebaseData(k,val);
+      renderAll();
       updateSyncStatus('synced');
     });
-  });
-  fbDb.ref('data').once('value',snap=>{
-    if(!snap.val()){
-      console.log('Firebase vacío — subiendo datos locales...');
-      SYNC_KEYS.forEach(k=>{const v=ld(k,null);if(v)fbDb.ref('data/'+k).set(v);});
-    }
-    updateSyncStatus('synced');
   });
 }
 
 // INIT
 function migrateNotesToCal(){
-  // Migrar notas con due que NO tengan fecha al calendario como cal_tasks
-  // Solo para notas sin hour guardada — las mantenemos en notes pero las mostramos en cal
-  // Este paso no mueve datos, solo valida que calGetDayTasks las encuentra bien
   let migrated=0;
   RESTS.forEach(r=>(notes[r]||[]).forEach(n=>{
     if(n.due&&!n._calMigrated){
       const key=calNoteKey(n.due);
-      if(key){
-        // Solo migrar si no existe ya una entrada duplicada en calTasks
-        const dup=calTasks.find(t=>t.text===n.text&&t.date===key);
-        if(!dup){migrated++;}
-        n._calMigrated=true;
-      }
+      if(key){const dup=calTasks.find(t=>t.text===n.text&&t.date===key);if(!dup)migrated++;n._calMigrated=true;}
     }
   }));
-  if(migrated>0){sv('notes',notes);console.log('Cal: '+migrated+' notas indexadas');}
+  if(migrated>0){sv('notes',notes);}
 }
 
-function init(){
-  try{initDate();}catch(e){console.error('initDate:',e);}
+async function init(){
+  try{initDate();}catch(e){}
   try{updateApiDot();}catch(e){}
   try{initNotes();}catch(e){}
+
+  // FIREBASE: cargar datos antes de renderizar
+  if(fbDb){
+    const hasLocalData=SYNC_KEYS.some(k=>{try{const v=localStorage.getItem(k);return v&&v.length>10;}catch(e){return false;}});
+    
+    if(!hasLocalData){
+      // DOMINIO NUEVO o localStorage vacío: cargar TODO de Firebase primero
+      updateSyncStatus('syncing');
+      try{
+        const snap=await fbDb.ref('data').once('value');
+        const allData=snap.val();
+        if(allData){
+          console.log('Cargando datos de Firebase...');
+          SYNC_KEYS.forEach(k=>{if(allData[k]!==undefined) applyFirebaseData(k,allData[k]);});
+          console.log('Datos cargados:', Object.keys(allData).join(', '));
+        }
+        updateSyncStatus('synced');
+      }catch(e){console.error('Error cargando Firebase:',e);updateSyncStatus('offline');}
+    } else {
+      // Hay datos locales: verificar si Firebase está vacío y subir
+      try{
+        const snap=await fbDb.ref('data').once('value');
+        if(!snap.val()){
+          console.log('Firebase vacío — subiendo datos locales...');
+          for(const k of SYNC_KEYS){const v=ld(k,null);if(v) await fbDb.ref('data/'+k).set(v);}
+        }
+        updateSyncStatus('synced');
+      }catch(e){updateSyncStatus('offline');}
+    }
+  }
+
+  // Migrar notas antiguas
   try{migrateNotesToCal();}catch(e){}
-  // Inicio
-  try{renderCalendar();}catch(e){console.error('Cal:',e);}
-  try{syncOneNote();}catch(e){}
-  try{renderMiniRestGrid();}catch(e){}
-  try{checkAlerts();}catch(e){}
-  // Velilla
-  try{renderVelNotes();}catch(e){}
+
+  // RENDERIZAR TODO (ahora con datos de Firebase cargados)
+  renderAll();
+  
   // McAcción
   try{
-    if(mc.campaigns.length){renderMCCurrent(mc.campaigns[0]);document.getElementById('mc-last-label').textContent='Último: '+(mc.campaigns[0].semana||'');}
+    if(mc.campaigns&&mc.campaigns.length){renderMCCurrent(mc.campaigns[0]);document.getElementById('mc-last-label').textContent='Último: '+(mc.campaigns[0].semana||'');}
     checkMCAlerts();
   }catch(e){}
-  // Costes
-  try{updateCostesCount();}catch(e){}
-  // Instrucciones
-  try{renderInstrHistorial();}catch(e){}
-  // Firebase sync
-  try{setupFirebaseListeners();}catch(e){console.error('Firebase init:',e);updateSyncStatus('offline');}
-  // API modal si no hay key
+
+  // Activar listeners en tiempo real para sincronizar cambios entre dispositivos
+  setupRealtimeListeners();
+
+  // API modal
   if(!getKey())setTimeout(openModal,600);
 }
 init();
