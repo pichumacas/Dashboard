@@ -2121,7 +2121,10 @@ function renderReunionList(){
     if(!r||!r.title) return '';
     const d=r.date?new Date(r.date+'T12:00:00'):null;
     const dateLabel=d&&!isNaN(d)?dayNames[d.getDay()]+' '+d.getDate()+' de '+months[d.getMonth()]+' '+d.getFullYear():'Sin fecha';
-    const preview=(r.notes||'').slice(0,200)+(r.notes&&r.notes.length>200?'...':'');
+    const rawNotes=r.notes||'';
+    // Limpiar HTML para el preview: quitar todas las etiquetas
+    const cleanNotes=rawNotes.replace(/<[^>]*>/g,'').replace(/<!--.*?-->/g,'').trim();
+    const preview=cleanNotes.slice(0,200)+(cleanNotes.length>200?'...':'');
     const rid=r.id||('tmp-'+idx);
     return`<div class="card" style="cursor:pointer;padding:16px 20px;margin-bottom:8px;transition:all .12s;" onclick="openEditReunion('${rid}')">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;">
