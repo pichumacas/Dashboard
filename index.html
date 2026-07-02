@@ -2121,22 +2121,22 @@ function renderReunionList(){
     if(!r||!r.title) return '';
     const d=r.date?new Date(r.date+'T12:00:00'):null;
     const dateLabel=d&&!isNaN(d)?dayNames[d.getDay()]+' '+d.getDate()+' de '+months[d.getMonth()]+' '+d.getFullYear():'Sin fecha';
-    const rawNotes=r.notes||'';
-    // Limpiar HTML para el preview: quitar todas las etiquetas
-    const cleanNotes=rawNotes.replace(/<[^>]*>/g,'').replace(/<!--.*?-->/g,'').trim();
-    const preview=cleanNotes.slice(0,200)+(cleanNotes.length>200?'...':'');
     const rid=r.id||('tmp-'+idx);
-    return`<div class="card" style="cursor:pointer;padding:16px 20px;margin-bottom:8px;transition:all .12s;" onclick="openEditReunion('${rid}')">
+    // Preview seguro: crear elemento temporal para extraer solo texto
+    const tmpDiv=document.createElement('div');
+    tmpDiv.innerHTML=r.notes||'';
+    const cleanPreview=(tmpDiv.textContent||tmpDiv.innerText||'').trim().slice(0,150);
+    return`<div class="card" style="cursor:pointer;padding:16px 20px;margin-bottom:8px;" onclick="openEditReunion('${rid}')">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;">
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
             <span style="font-size:15px;">📎</span>
-            <div style="font-size:16px;font-weight:600;color:var(--text);letter-spacing:-0.2px;">${r.title}</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text);">${r.title||'Sin título'}</div>
           </div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">${dateLabel}${r.hour?' · '+r.hour:''}</div>
-          ${preview?`<div style="font-size:13px;font-family:Georgia,serif;color:var(--text);line-height:1.7;background:var(--bg);padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);max-height:80px;overflow:hidden;">${preview}</div>`:''}
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">${dateLabel}${r.hour?' · '+r.hour:''}</div>
+          ${cleanPreview?'<div style="font-size:13px;font-family:Georgia,serif;color:var(--text-faint);line-height:1.5;overflow:hidden;max-height:40px;">'+cleanPreview+'</div>':''}
         </div>
-        <button onclick="event.stopPropagation();deleteReunion('${rid}')" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:20px;padding:0 4px;line-height:1;flex-shrink:0;">×</button>
+        <button onclick="event.stopPropagation();deleteReunion('${rid}')" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:20px;padding:0 4px;">×</button>
       </div>
     </div>`;
   }).filter(Boolean).join('');
