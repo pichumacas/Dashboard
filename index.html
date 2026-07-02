@@ -448,6 +448,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
     </div>
     <button class="btn btn-yellow" onclick="openNewReunion()" style="padding:8px 18px;font-weight:600;white-space:nowrap;">+ Nueva reunión</button>
   </div>
+  <div style="font-size:11px;color:var(--text-faint);margin-bottom:8px;" id="reunion-count"></div>
   <div id="reunion-list"></div>
 </div>
 
@@ -2084,25 +2085,33 @@ function deleteReunion(id){
 function renderReunionList(){
   const div=document.getElementById('reunion-list');
   if(!div) return;
-  // Asegurar que reuniones es un array válido
-  if(!Array.isArray(reuniones)) reuniones=reuniones?Object.values(reuniones):[];
+  // Forzar array
+  if(!Array.isArray(reuniones)){
+    try{reuniones=Object.values(reuniones).filter(Boolean);}catch(e){reuniones=[];}
+  }
+  // Filtrar entradas válidas
+  const valid=reuniones.filter(r=>r&&typeof r==='object'&&r.title);
   const search=(document.getElementById('reunion-search')?.value||'').toLowerCase().trim();
-  let filtered=reuniones.filter(r=>r&&r.title).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  let filtered=valid.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   if(search){
     filtered=filtered.filter(r=>(r.title||'').toLowerCase().includes(search)||(r.notes||'').toLowerCase().includes(search));
   }
+  // Debug: mostrar contador
+  const countEl=document.getElementById('reunion-count');
+  if(countEl) countEl.textContent=valid.length+' reuniones';
+
   if(!filtered.length){
-    div.innerHTML=`<div class="card"><p style="font-size:13px;color:var(--text-faint);">${search?'Sin resultados para "'+search+'"':'Sin reuniones guardadas. Pulsa "+ Nueva reunión" para crear la primera.'}</p></div>`;
+    div.innerHTML=`<div class="card"><p style="font-size:13px;color:var(--text-faint);">${search?'Sin resultados para "'+search+'"':'Sin reuniones guardadas. (Debug: reuniones tipo='+typeof reuniones+' length='+(reuniones?reuniones.length:'null')+')'}</p></div>`;
     return;
   }
   const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const dayNames=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  div.innerHTML=filtered.map(r=>{
+  div.innerHTML=filtered.map((r,idx)=>{
     if(!r||!r.title) return '';
     const d=r.date?new Date(r.date+'T12:00:00'):null;
     const dateLabel=d&&!isNaN(d)?dayNames[d.getDay()]+' '+d.getDate()+' de '+months[d.getMonth()]+' '+d.getFullYear():'Sin fecha';
     const preview=(r.notes||'').slice(0,200)+(r.notes&&r.notes.length>200?'...':'');
-    const rid=r.id||('r'+Math.random()).replace('.','');
+    const rid=r.id||('tmp-'+idx);
     return`<div class="card" style="cursor:pointer;padding:16px 20px;margin-bottom:8px;transition:all .12s;" onclick="openEditReunion('${rid}')">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;">
         <div style="flex:1;min-width:0;">
