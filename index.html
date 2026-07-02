@@ -1997,7 +1997,8 @@ function instrDelHistorial(ei){
 
 // REUNIONES
 function getReunionsForDate(key){
-  return reuniones.filter(r=>r.date===key).sort((a,b)=>(a.hour||'').localeCompare(b.hour||''));
+  if(!Array.isArray(reuniones)) reuniones=reuniones?Object.values(reuniones):[];
+  return reuniones.filter(r=>r&&r.date===key).sort((a,b)=>(a.hour||'').localeCompare(b.hour||''));
 }
 function openNewReunion(){
   editingReunionId=null;
@@ -2083,8 +2084,10 @@ function deleteReunion(id){
 function renderReunionList(){
   const div=document.getElementById('reunion-list');
   if(!div) return;
+  // Asegurar que reuniones es un array válido
+  if(!Array.isArray(reuniones)) reuniones=reuniones?Object.values(reuniones):[];
   const search=(document.getElementById('reunion-search')?.value||'').toLowerCase().trim();
-  let filtered=[...reuniones].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  let filtered=reuniones.filter(r=>r&&r.title).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   if(search){
     filtered=filtered.filter(r=>(r.title||'').toLowerCase().includes(search)||(r.notes||'').toLowerCase().includes(search));
   }
@@ -2095,10 +2098,12 @@ function renderReunionList(){
   const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const dayNames=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
   div.innerHTML=filtered.map(r=>{
+    if(!r||!r.title) return '';
     const d=r.date?new Date(r.date+'T12:00:00'):null;
-    const dateLabel=d?dayNames[d.getDay()]+' '+d.getDate()+' de '+months[d.getMonth()]+' '+d.getFullYear():'Sin fecha';
+    const dateLabel=d&&!isNaN(d)?dayNames[d.getDay()]+' '+d.getDate()+' de '+months[d.getMonth()]+' '+d.getFullYear():'Sin fecha';
     const preview=(r.notes||'').slice(0,200)+(r.notes&&r.notes.length>200?'...':'');
-    return`<div class="card" style="cursor:pointer;padding:16px 20px;margin-bottom:8px;transition:all .12s;" onclick="openEditReunion('${r.id}')">
+    const rid=r.id||('r'+Math.random()).replace('.','');
+    return`<div class="card" style="cursor:pointer;padding:16px 20px;margin-bottom:8px;transition:all .12s;" onclick="openEditReunion('${rid}')">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;">
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
@@ -2108,10 +2113,10 @@ function renderReunionList(){
           <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">${dateLabel}${r.hour?' · '+r.hour:''}</div>
           ${preview?`<div style="font-size:13px;font-family:Georgia,serif;color:var(--text);line-height:1.7;background:var(--bg);padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);max-height:80px;overflow:hidden;">${preview}</div>`:''}
         </div>
-        <button onclick="event.stopPropagation();deleteReunion('${r.id}')" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:20px;padding:0 4px;line-height:1;flex-shrink:0;">×</button>
+        <button onclick="event.stopPropagation();deleteReunion('${rid}')" style="background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:20px;padding:0 4px;line-height:1;flex-shrink:0;">×</button>
       </div>
     </div>`;
-  }).join('');
+  }).filter(Boolean).join('');
 }
 
 // CANDIDATOS VELILLA
