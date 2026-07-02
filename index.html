@@ -497,7 +497,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
     <div id="costes-rest-content"></div>
   </div>
   <div class="vtab-panel" id="cvp-comp">
-    <div class="card"><div class="card-header"><div class="card-title">Uso real food+papel · media por restaurante</div></div><div id="comp-metrics"></div><div class="chart-wrap"><canvas id="chart-comp"></canvas></div></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);">Período:</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;" id="comp-period-tabs"></div>
+    </div>
+    <div class="card"><div class="card-header"><div class="card-title" id="comp-title">Comparativa por restaurante</div></div><div id="comp-metrics"></div><div class="chart-wrap"><canvas id="chart-comp"></canvas></div></div>
     <div class="card"><div class="card-header"><div class="card-title">Evolución margen bruto</div></div><div class="chart-wrap"><canvas id="chart-mb-evo"></canvas></div></div>
     <div class="card"><div class="card-header"><div class="card-title">Desviación total por restaurante</div></div><div class="chart-wrap"><canvas id="chart-desv-evo"></canvas></div></div>
   </div>
@@ -1530,19 +1534,131 @@ function renderCostesRest(){
     },50);
   }
 }
+let compPeriod='ytd';
+function setCompPeriod(p){compPeriod=p;renderCostesComp();}
+
 function renderCostesComp(){
-  const periods=[...new Set(costes.map(e=>e.periodo))].sort();
-  const summ=RESTS.filter(r=>r!=='Velilla').map((r,i)=>{const en=costes.filter(e=>e.restaurante===r);if(!en.length)return null;const n=en.length;return{r,i,aF:en.reduce((s,e)=>s+(e.real_food||0),0)/n,aP:en.reduce((s,e)=>s+(e.real_paper||0),0)/n,aM:en.reduce((s,e)=>s+e.margen,0)/n};}).filter(Boolean);
-  const cm=document.getElementById('comp-metrics');if(!summ.length){if(cm)cm.innerHTML='<p style="font-size:13px;color:var(--text-faint);">Sin datos aún.</p>';return;}
-  if(cm)cm.innerHTML='<div class="grid4" style="margin-bottom:12px;">'+summ.map(x=>`<div class="metric"><div class="metric-label">${x.r}</div><div style="margin-top:4px;"><span class="badge ${bc(x.aF,0.28)}">${(x.aF*100).toFixed(2)}% food</span></div><div style="margin-top:3px;"><span class="badge ${bc(x.aP,0.03)}">${(x.aP*100).toFixed(2)}% pap.</span></div><div style="margin-top:3px;"><span class="badge b-ok">${x.aM.toFixed(2)}% mb</span></div></div>`).join('')+'</div>';
+  // Generar tabs de periodo
+  const monthNames=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const allMonths=monthNames.map((_,i)=>String(i+1).padStart(2,'0'));
+  const tabsDiv=document.getElementById('comp-period-tabs');
+  if(tabsDiv){
+    let tabsHtml=`<button onclick="setCompPeriod('ytd')" style="font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid ${compPeriod==='ytd'?'var(--yellow-dark)':'var(--border-strong)'};background:${compPeriod==='ytd'?'var(--yellow)':'var(--surface)'};color:${compPeriod==='ytd'?'#1B3A14':'var(--text)'};cursor:pointer;font-weight:${compPeriod==='ytd'?'700':'500'};">YTD</button>`;
+    allMonths.forEach((m,i)=>{
+      const hasData=costes.some(e=>(e.periodo||'').split('/')[0]===m);
+      tabsHtml+=`<button onclick="setCompPeriod('${m}')" style="font-size:11px;padding:4px 10px;border-radius:99px;border:1px solid ${compPeriod===m?'var(--yellow-dark)':'var(--border-strong)'};background:${compPeriod===m?'var(--yellow)':hasData?'var(--surface)':'var(--bg)'};color:${compPeriod===m?'#1B3A14':hasData?'var(--text)':'var(--text-faint)'};cursor:pointer;font-weight:${compPeriod===m?'700':'500'};">${monthNames[i]}</button>`;
+    });
+    tabsDiv.innerHTML=tabsHtml;
+  }
+
+  // Obtener datos por restaurante según período seleccionado
+  const rests=RESTS.filter(r=>r!=='Velilla');
+  const summ=rests.map((r,i)=>{
+    let entries;
+    if(compPeriod==='ytd'){
+      // YTD: preferir mensuales si existen, sino media de semanales por mes
+      const byMonth={};
+      costes.filter(e=>e.restaurante===r).forEach(e=>{
+        const m=(e.periodo||'').split('/')[0];
+        if(!byMonth[m])byMonth[m]={monthly:null,weekly:[]};
+        if(e.tipo==='mensual') byMonth[m].monthly=e;
+        else byMonth[m].weekly.push(e);
+      });
+      entries=[];
+      Object.values(byMonth).forEach(mb=>{
+        if(mb.monthly) entries.push(mb.monthly);
+        else if(mb.weekly.length){
+          // Crear entrada promedio del mes
+          const n=mb.weekly.length;
+          const avg=f=>mb.weekly.reduce((s,e)=>s+(e[f]||0),0)/n;
+          entries.push({real_food:avg('real_food'),real_paper:avg('real_paper'),margen:avg('margen'),desv_total:avg('desv_total'),rendim_pct:avg('rendim_pct'),basura_food:avg('basura_food'),basura_paper:avg('basura_paper'),desv_euros_total:avg('desv_euros_total'),cempl_food:avg('cempl_food')});
+        }
+      });
+    } else {
+      // Mes específico: buscar mensual primero, sino media de semanales
+      const monthEntries=costes.filter(e=>e.restaurante===r&&(e.periodo||'').split('/')[0]===compPeriod);
+      const monthly=monthEntries.find(e=>e.tipo==='mensual');
+      if(monthly){
+        entries=[monthly];
+      } else {
+        entries=monthEntries.filter(e=>e.tipo!=='mensual');
+      }
+    }
+    if(!entries.length) return null;
+    const n=entries.length;
+    const avg=f=>entries.reduce((s,e)=>s+(e[f]||0),0)/n;
+    return{r,i,aF:avg('real_food'),aP:avg('real_paper'),aM:avg('margen'),aD:avg('desv_total'),aR:avg('rendim_pct'),aB:avg('basura_food')+avg('basura_paper'),aI:avg('desv_euros_total'),aC:avg('cempl_food'),isMonthly:entries.length===1&&entries[0].tipo==='mensual'};
+  }).filter(Boolean);
+
+  // Título
+  const titleEl=document.getElementById('comp-title');
+  if(titleEl) titleEl.textContent=compPeriod==='ytd'?'Comparativa YTD · acumulado del año':'Comparativa · '+monthNames[parseInt(compPeriod)-1]+' 2026'+(summ.some(s=>s.isMonthly)?' (informe mensual)':' (media semanal)');
+
+  // Métricas
+  const cm=document.getElementById('comp-metrics');
+  if(!summ.length){if(cm)cm.innerHTML='<p style="font-size:13px;color:var(--text-faint);">Sin datos para este período.</p>';return;}
+  if(cm) cm.innerHTML=`<div style="display:grid;grid-template-columns:repeat(${Math.min(summ.length,5)},1fr);gap:8px;margin-bottom:12px;">`+summ.map(x=>`<div class="metric" style="padding:12px;">
+    <div class="metric-label" style="font-size:13px;font-weight:700;">${x.r}</div>
+    <div style="margin-top:6px;"><span class="badge ${bc(x.aF,0.25)}">${(x.aF*100).toFixed(2)}% food</span></div>
+    <div style="margin-top:3px;"><span class="badge ${bc(x.aP,0.03)}">${(x.aP*100).toFixed(2)}% papel</span></div>
+    <div style="margin-top:3px;"><span class="badge b-ok">${x.aM.toFixed(2)}% margen</span></div>
+    <div style="margin-top:3px;"><span style="font-size:11px;color:${x.aD<0?'var(--red)':'var(--green)'};">Desv: ${(x.aD*100).toFixed(2)}%</span></div>
+    <div style="margin-top:2px;"><span style="font-size:11px;color:var(--text-faint);">Basura: ${(x.aB*100).toFixed(2)}%</span></div>
+    ${x.aI!=null?`<div style="margin-top:2px;"><span style="font-size:11px;color:${x.aI<0?'var(--red)':'var(--green)'};">Impacto: ${Math.round(x.aI)}€</span></div>`:''}
+  </div>`).join('')+'</div>';
+
+  // Gráfica de barras
   setTimeout(()=>{
     if(charts['cmp'])charts['cmp'].destroy();const c=document.getElementById('chart-comp');
-    if(c)charts['cmp']=new Chart(c,{type:'bar',data:{labels:summ.map(x=>x.r),datasets:[{label:'Real food %',data:summ.map(x=>+(x.aF*100).toFixed(2)),backgroundColor:summ.map(x=>x.aF>0.28?'rgba(192,57,43,0.7)':'rgba(196,80,26,0.65)')},{label:'Real papel %',data:summ.map(x=>+(x.aP*100).toFixed(2)),backgroundColor:'rgba(37,99,235,0.6)'},{label:'Margen bruto %',data:summ.map(x=>+x.aM.toFixed(2)),type:'line',yAxisID:'y2',borderColor:'#1D8A5E',backgroundColor:'transparent',pointRadius:5,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{y:{ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,0.04)'}},y2:{position:'right',ticks:{callback:v=>v+'%',font:{size:11}},grid:{display:false}},x:{ticks:{font:{size:11}},grid:{display:false}}}}});
+    if(c)charts['cmp']=new Chart(c,{type:'bar',data:{labels:summ.map(x=>x.r),datasets:[
+      {label:'Real food %',data:summ.map(x=>+(x.aF*100).toFixed(2)),backgroundColor:summ.map(x=>x.aF>0.25?'rgba(192,57,43,0.7)':'rgba(196,80,26,0.65)')},
+      {label:'Real papel %',data:summ.map(x=>+(x.aP*100).toFixed(2)),backgroundColor:'rgba(37,99,235,0.6)'},
+      {label:'Margen bruto %',data:summ.map(x=>+x.aM.toFixed(2)),type:'line',yAxisID:'y2',borderColor:'#1D8A5E',backgroundColor:'transparent',pointRadius:5,tension:0.3}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{y:{ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,0.04)'}},y2:{position:'right',ticks:{callback:v=>v+'%',font:{size:11}},grid:{display:false}},x:{ticks:{font:{size:11}},grid:{display:false}}}}});
+
+    // Evolución mensual — barras agrupadas con valores
+    const months=[...new Set(costes.map(e=>(e.periodo||'').split('/')[0]))].sort();
     ['chart-mb-evo','chart-desv-evo'].forEach((id,ci)=>{
-      if(charts[id])charts[id].destroy();const el=document.getElementById(id);if(!el||!periods.length)return;
-      const field=ci===0?'margen':'desv_total';const mult=ci===0?1:100;
-      const datasets=RESTS.filter(r=>r!=='Velilla').map((r,i)=>{const vals=periods.map(p=>{const e=costes.find(x=>x.restaurante===r&&x.periodo===p);return e&&e[field]!=null?+((e[field]||0)*mult).toFixed(2):null;});if(vals.every(v=>v===null))return null;return{label:r,data:vals,borderColor:CHART_COLORS[i],backgroundColor:'transparent',tension:0.3,pointRadius:3,spanGaps:true};}).filter(Boolean);
-      charts[id]=new Chart(el,{type:'line',data:{labels:periods,datasets},options:copt('%')});
+      if(charts[id])charts[id].destroy();const el=document.getElementById(id);if(!el||!months.length)return;
+      const field=ci===0?'margen':'desv_total';
+      const mult=ci===0?1:100;
+      
+      // Si solo hay un mes o se ve un mes concreto: barras por restaurante
+      const useMonths=compPeriod==='ytd'?months:[compPeriod];
+      
+      if(useMonths.length===1){
+        // Barras horizontales por restaurante para el mes seleccionado
+        const m=useMonths[0];
+        const vals=rests.map(r=>{
+          const monthly=costes.find(x=>x.restaurante===r&&(x.periodo||'').split('/')[0]===m&&x.tipo==='mensual');
+          if(monthly&&monthly[field]!=null) return +(monthly[field]*mult).toFixed(2);
+          const weekly=costes.filter(x=>x.restaurante===r&&(x.periodo||'').split('/')[0]===m&&x.tipo!=='mensual');
+          if(weekly.length){return +(weekly.reduce((s,e)=>s+(e[field]||0),0)/weekly.length*mult).toFixed(2);}
+          return null;
+        });
+        charts[id]=new Chart(el,{type:'bar',data:{labels:rests,datasets:[{
+          label:ci===0?'Margen bruto %':'Desviación total %',
+          data:vals,
+          backgroundColor:ci===0?rests.map((_,i)=>CHART_COLORS[i]+'CC'):vals.map(v=>v!=null&&v>0?'rgba(192,57,43,0.7)':'rgba(29,138,94,0.7)'),
+          borderRadius:6,
+          barPercentage:0.7,
+        }]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.x.toFixed(2)+'%'}},datalabels:false},scales:{x:{ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,0.04)'}},y:{ticks:{font:{size:12,weight:'bold'}},grid:{display:false}}}}});
+      } else {
+        // Múltiples meses: barras agrupadas
+        const labels=useMonths.map(m=>monthNames[parseInt(m)-1]);
+        const datasets=rests.map((r,i)=>{
+          const vals=useMonths.map(m=>{
+            const monthly=costes.find(x=>x.restaurante===r&&(x.periodo||'').split('/')[0]===m&&x.tipo==='mensual');
+            if(monthly&&monthly[field]!=null) return +(monthly[field]*mult).toFixed(2);
+            const weekly=costes.filter(x=>x.restaurante===r&&(x.periodo||'').split('/')[0]===m&&x.tipo!=='mensual');
+            if(weekly.length){return +(weekly.reduce((s,e)=>s+(e[field]||0),0)/weekly.length*mult).toFixed(2);}
+            return null;
+          });
+          if(vals.every(v=>v===null))return null;
+          return{label:r,data:vals,backgroundColor:CHART_COLORS[i]+'CC',borderRadius:4,barPercentage:0.8};
+        }).filter(Boolean);
+        charts[id]=new Chart(el,{type:'bar',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{y:{ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,0.04)'}},x:{ticks:{font:{size:11}},grid:{display:false}}}}});
+      }
     });
   },50);
 }
