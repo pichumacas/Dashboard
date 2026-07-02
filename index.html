@@ -721,7 +721,18 @@ function goTo(id){
   if(id==='inicio')renderInicio();
   if(id==='velilla'){renderVelNotes();renderCandidatos();}
   if(id==='instrucciones')renderInstrHistorial();
-  if(id==='reuniones')renderReunionList();
+  if(id==='reuniones'){
+    renderReunionList();
+    // Forzar recarga desde Firebase
+    fbRead('data/reuniones').then(val=>{
+      if(val){
+        reuniones=Array.isArray(val)?val:Object.values(val).filter(Boolean);
+        try{localStorage.setItem('reuniones',JSON.stringify(reuniones));}catch(e){}
+        console.log('Reuniones recargadas de Firebase:',reuniones.length);
+        renderReunionList();
+      }
+    });
+  }
 }
 
 // DATE
@@ -2347,6 +2358,17 @@ async function init(){
 
   // Renderizar TODO
   renderAll();
+
+  // Forzar recarga de reuniones desde Firebase (fix específico)
+  fbRead('data/reuniones').then(val=>{
+    if(val){
+      reuniones=Array.isArray(val)?val:Object.values(val).filter(Boolean);
+      try{localStorage.setItem('reuniones',JSON.stringify(reuniones));}catch(e){}
+      console.log('Reuniones forzadas:',reuniones.length);
+      renderReunionList();
+      renderCalendar();
+    }
+  });
 
   // McAcción
   try{
