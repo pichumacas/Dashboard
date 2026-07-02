@@ -1138,12 +1138,12 @@ async function costesProcessNext(){
         await analyzeCoste(text,f.name,costeQIdx,pdfBase64);
         success=true;
       }catch(err){
-        console.warn('Intento '+attempt+' falló:',err.message);
+        console.warn('Intento '+attempt+'/2 para '+f.name+':',err.message);
         if(attempt===2){
-          if(st){st.textContent='Error: '+err.message.slice(0,50);st.className='file-st err';}
+          if(st){st.textContent='Error: '+err.message.slice(0,60);st.className='file-st err';}
         } else {
-          if(st) st.textContent='Reintentando...';
-          await new Promise(r=>setTimeout(r,1000));
+          if(st) st.textContent='Reintentando en 3s...';
+          await new Promise(r=>setTimeout(r,3000)); // Esperar 3 segundos antes de reintentar
         }
       }
     }
@@ -1207,13 +1207,37 @@ REGLAS:
 TEXTO:
 ${text.slice(0,8000)}`;
 
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,messages:[{role:'user',content:prompt}]})
-  });
-  if(!res.ok) throw new Error('API '+res.status);
-  const data=await res.json();
+  // Validar API key antes de llamar
+  if(!key||key.length<20||!key.startsWith('sk-')){throw new Error('API Key inválida. Ve a ⚙ en el sidebar para configurarla.');}
+
+  // Llamada con timeout de 30 segundos y manejo robusto de errores
+  let res;
+  try{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),30000);
+    res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      signal:controller.signal,
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,messages:[{role:'user',content:prompt}]})
+    });
+    clearTimeout(timeout);
+  }catch(fetchErr){
+    if(fetchErr.name==='AbortError') throw new Error('Timeout: la API tardó más de 30s. Reintenta.');
+    throw new Error('Error de red: comprueba tu conexión a internet y que la API Key sea correcta.');
+  }
+
+  if(!res.ok){
+    let errMsg='API error '+res.status;
+    try{const errBody=await res.json();errMsg=errBody.error?.message||errMsg;}catch(e){}
+    if(res.status===401) throw new Error('API Key incorrecta o expirada. Revísala en ⚙.');
+    if(res.status===429) throw new Error('Demasiadas peticiones. Espera unos segundos y reintenta.');
+    if(res.status===529) throw new Error('API sobrecargada. Reintenta en unos minutos.');
+    throw new Error(errMsg);
+  }
+
+  let data;
+  try{data=await res.json();}catch(e){throw new Error('Respuesta de API no válida');}
   if(data.error) throw new Error(data.error.message||'API error');
   const raw=(data.content||[]).map(b=>b.text||'').join('').trim();
 
