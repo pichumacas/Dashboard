@@ -1322,6 +1322,13 @@ ${text.slice(0,8000)}`;
   // Calcular campos derivados
   const margen=Math.round((1-(p.real_food||0)-(p.real_paper||0))*10000)/100;
   const desv_euros_total=Math.round(((p.desv_euros_food||0)+(p.desv_euros_paper||0))*100)/100;
+  
+  // PERIODO: siempre usar el mes de fecha_fin (si cruza meses, va al mes posterior)
+  if(p.fecha_fin){
+    const ff=p.fecha_fin.split('/');
+    if(ff.length>=3) p.periodo=ff[1]+'/'+ff[2];
+  }
+  
   const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   let periodo_label='';
   if(p.tipo==='mensual'){
