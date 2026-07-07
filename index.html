@@ -2366,6 +2366,27 @@ async function init(){
   // Migrar notas
   try{migrateNotesToCal();}catch(e){}
 
+  // Corregir periodo de costes existentes usando fecha_fin
+  try{
+    let fixed=0;
+    costes.forEach(function(e){
+      if(e.fecha_fin){
+        const ff=e.fecha_fin.split('/');
+        if(ff.length>=3){
+          const correctPeriodo=ff[1]+'/'+ff[2];
+          if(e.periodo!==correctPeriodo){
+            e.periodo=correctPeriodo;
+            fixed++;
+          }
+        }
+      }
+    });
+    if(fixed>0){
+      sv('costes',costes);
+      console.log('Corregidos '+fixed+' periodos de costes');
+    }
+  }catch(e){}
+
   // Renderizar TODO
   renderAll();
 
