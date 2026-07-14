@@ -1371,6 +1371,7 @@ ${text.slice(0,8000)}`;
 }
 function updateCostesCount(){const el=document.getElementById('costes-count');if(el)el.textContent=costes.length+' registros acumulados';}
 function pct(v){return v==null?'—':(Math.round(v*10000)/100).toFixed(2)+'%';}
+function parseDateSort(d){if(!d)return'0';const p=d.split('/');return p.length>=3?p[2]+p[1]+p[0]:p.length>=2?'2026'+p[1]+p[0]:d;}
 function bc(v,tgt){return v==null?'b-neu':v<=tgt?'b-ok':v<=tgt+0.02?'b-warn':'b-bad';}
 function colorN(v){return(v||0)<0?'var(--red)':'var(--green)';}
 function copt(unit){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:11},boxWidth:12}}},scales:{y:{ticks:{callback:v=>v+unit,font:{size:11}},grid:{color:'rgba(0,0,0,0.04)'}},x:{ticks:{font:{size:10}},grid:{display:false}}}};}
@@ -1478,7 +1479,7 @@ function selectAnalysisEntry(id){
   const e=costes.find(x=>String(x.id)===String(id));
   if(!e) return;
   selectedAnalysisEntry=e;
-  const weeklyEntries=costes.filter(x=>x.restaurante===activeCosteRest&&(x.periodo||'').split('/')[0]===activeCosteMonth&&x.tipo!=='mensual').sort((a,b)=>(a.fecha_inicio||'').localeCompare(b.fecha_inicio||''));
+  const weeklyEntries=costes.filter(x=>x.restaurante===activeCosteRest&&(x.periodo||'').split('/')[0]===activeCosteMonth&&x.tipo!=='mensual').sort((a,b)=>parseDateSort(a.fecha_inicio).localeCompare(parseDateSort(b.fecha_inicio)));
   const panel=document.getElementById('analysis-panel');
   const title=document.getElementById('analysis-title');
   if(panel) panel.innerHTML=buildAnalysisHTML(e, weeklyEntries);
@@ -1490,7 +1491,7 @@ function selectAnalysisEntry(id){
 
 function renderCostesRest(){
   const c=document.getElementById('costes-rest-content');if(!c)return;
-  const entries=costes.filter(e=>e.restaurante===activeCosteRest).sort((a,b)=>(a.fecha_inicio||a.periodo).localeCompare(b.fecha_inicio||b.periodo));
+  const entries=costes.filter(e=>e.restaurante===activeCosteRest).sort((a,b)=>parseDateSort(a.fecha_inicio).localeCompare(parseDateSort(b.fecha_inicio)));
   if(!entries.length){c.innerHTML=`<div class="card"><p style="font-size:13px;color:var(--text-faint);">Sin datos para ${activeCosteRest}. Sube un informe de operaciones.</p></div>`;return;}
 
   // Determinar meses disponibles
