@@ -400,7 +400,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
       <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:10px;">＋ Nueva tarea</div>
       <input id="day-new-text" placeholder="¿Qué tienes que hacer?" style="margin-bottom:8px;" onkeydown="if(event.key==='Enter')dayAddTask()"/>
       <div style="display:flex;gap:6px;margin-bottom:8px;">
-        <input id="day-new-hour" type="time" style="width:105px;flex-shrink:0;"/>
+        <input id="day-new-hour" type="time" style="width:90px;flex-shrink:0;" title="Desde"/>
+        <span style="font-size:12px;color:var(--text-faint);align-self:center;">a</span>
+        <input id="day-new-hour-end" type="time" style="width:90px;flex-shrink:0;" title="Hasta"/>
         <select id="day-new-rest" style="flex:1;"><option value="">Sin restaurante</option><option>Arganda</option><option>Futura</option><option>Urba</option><option>La Gavia</option><option>Vicálvaro</option><option>Velilla</option></select>
         <select id="day-new-type" style="flex:1;"><option value="accion">Acción</option><option value="reunion">Reunión</option><option value="nota">Nota</option></select>
       </div>
@@ -858,7 +860,8 @@ function renderCalendar(){
     if(dayMeetings.length>2) meetHtml+=`<div style="font-size:10px;color:var(--purple);padding:1px 6px;">+${dayMeetings.length-2} más</div>`;
     let tasksHtml=allTasks.slice(0,dayMeetings.length?2:3).map(t=>{
       const cls=t.fromNotes?'ct-general':`ct-${t.type||'accion'}`;
-      const label=(t.hour?`<span style="opacity:.6;font-size:10px;">${t.hour}</span> `:'')+(t.rest?`${t.rest}: `:'')+(t.text.length>22?t.text.slice(0,22)+'…':t.text);
+      const timeLabel=t.hour?(t.hour+(t.hourEnd?'-'+t.hourEnd:'')):'';
+      const label=(timeLabel?'<span style="opacity:.6;font-size:10px;">'+timeLabel+'</span> ':'')+(t.rest?t.rest+': ':'')+(t.text.length>20?t.text.slice(0,20)+'…':t.text);
       return`<div class="cal-task ${cls}${t.done?' done':''}">${label}</div>`;
     }).join('');
     const totalItems=allTasks.length+dayMeetings.length;
@@ -919,33 +922,45 @@ function renderDayHours(key){
   const hours=['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
   const noHour=tasks.filter(t=>!t.hour);
   let html='';
-  // Sin hora arriba
   if(noHour.length){
-    html+=`<div style="margin-bottom:10px;">`;
+    html+='<div style="margin-bottom:10px;">';
     noHour.forEach(t=>{
-      const cls=t.fromNotes?'ct-general':`ct-${t.type||'accion'}`;
-      html+=`<div class="day-hour-task ${cls}${t.done?' done':''}" onclick="dayToggleTask('${t.fromNotes?'note':'cal'}','${t.id}','${t.rest||''}')">
-        <div style="flex:1;">${t.rest?`<span style="font-weight:700;">${t.rest}:</span> `:''} ${t.text}</div>
-        ${!t.fromNotes?`<button onclick="event.stopPropagation();dayDelTask('${t.id}')" style="background:none;border:none;cursor:pointer;color:inherit;opacity:.5;font-size:15px;padding:0;">×</button>`:''}
-      </div>`;
+      const cls=t.fromNotes?'ct-general':'ct-'+(t.type||'accion');
+      html+='<div class="day-hour-task '+cls+(t.done?' done':'')+'" onclick="dayToggleTask(\''+(t.fromNotes?'note':'cal')+'\',\''+t.id+'\',\''+(t.rest||'')+'\')">';
+      html+='<div style="flex:1;">'+(t.rest?'<span style="font-weight:700;">'+t.rest+':</span> ':'')+t.text+'</div>';
+      if(!t.fromNotes) html+='<button onclick="event.stopPropagation();dayDelTask(\''+t.id+'\')" style="background:none;border:none;cursor:pointer;color:inherit;opacity:.5;font-size:15px;padding:0;">×</button>';
+      html+='</div>';
     });
-    html+=`</div>`;
+    html+='</div>';
   }
-  hours.forEach(h=>{
-    const hTasks=tasks.filter(t=>t.hour&&t.hour.startsWith(h.slice(0,2)));
-    const now=new Date();const isNow=now.getHours()===parseInt(h)&&calSelectedKey===calDateKey(now);
-    html+=`<div class="day-hour-row" style="${isNow?'background:var(--yellow-light);':''}">
-      <div class="day-hour-label" style="${isNow?'color:var(--yellow-dark);font-weight:700;':''}">${h}</div>
-      <div class="day-hour-tasks">
-        ${hTasks.map(t=>{
-          const cls=t.fromNotes?'ct-general':`ct-${t.type||'accion'}`;
-          return`<div class="day-hour-task ${cls}${t.done?' done':''}" onclick="dayToggleTask('${t.fromNotes?'note':'cal'}','${t.id}','${t.rest||''}')">
-            <div style="flex:1;">${t.rest?`<span style="font-weight:700;">${t.rest}:</span> `:''} ${t.text}</div>
-            ${!t.fromNotes?`<button onclick="event.stopPropagation();dayDelTask('${t.id}')" style="background:none;border:none;cursor:pointer;color:inherit;opacity:.5;font-size:15px;padding:0;">×</button>`:''}
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
+  hours.forEach(function(h){
+    var hh=parseInt(h);
+    var hTasks=tasks.filter(function(t){
+      if(!t.hour) return false;
+      var startH=parseInt(t.hour);
+      if(t.hourEnd){
+        var endH=parseInt(t.hourEnd);
+        return hh>=startH&&hh<endH;
+      }
+      return t.hour.startsWith(h.slice(0,2));
+    });
+    var now=new Date();var isNow=now.getHours()===hh&&calSelectedKey===calDateKey(now);
+    html+='<div class="day-hour-row" style="'+(isNow?'background:rgba(123,167,151,0.08);':'')+'">';
+    html+='<div class="day-hour-label" style="'+(isNow?'color:var(--accent);font-weight:700;':'')+'">'+h+'</div>';
+    html+='<div class="day-hour-tasks">';
+    hTasks.forEach(function(t){
+      var cls=t.fromNotes?'ct-general':'ct-'+(t.type||'accion');
+      var timeLabel=t.hour+(t.hourEnd?'–'+t.hourEnd:'');
+      var isStart=t.hour&&t.hour.startsWith(h.slice(0,2));
+      html+='<div class="day-hour-task '+cls+(t.done?' done':'')+'" onclick="dayToggleTask(\''+(t.fromNotes?'note':'cal')+'\',\''+t.id+'\',\''+(t.rest||'')+'\')">';
+      html+='<div style="flex:1;">';
+      if(isStart) html+=(t.rest?'<span style="font-weight:700;">'+t.rest+':</span> ':'')+t.text+(t.hourEnd?' <span style="opacity:0.5;font-size:10px;">('+timeLabel+')</span>':'');
+      else html+='<span style="opacity:0.4;font-size:11px;">↕ '+t.text+'</span>';
+      html+='</div>';
+      if(!t.fromNotes&&isStart) html+='<button onclick="event.stopPropagation();dayDelTask(\''+t.id+'\')" style="background:none;border:none;cursor:pointer;color:inherit;opacity:.5;font-size:15px;padding:0;">×</button>';
+      html+='</div>';
+    });
+    html+='</div></div>';
   });
   document.getElementById('day-hours').innerHTML=html;
 }
@@ -953,11 +968,13 @@ function renderDayHours(key){
 function dayAddTask(){
   const text=document.getElementById('day-new-text').value.trim();if(!text)return;
   const hour=document.getElementById('day-new-hour').value||'';
+  const hourEnd=document.getElementById('day-new-hour-end').value||'';
   const rest=document.getElementById('day-new-rest').value;
   const type=document.getElementById('day-new-type').value;
-  calTasks.push({id:String(Date.now()),date:calSelectedKey,text,hour,type,rest,done:false,ts:new Date().toISOString()});
+  calTasks.push({id:String(Date.now()),date:calSelectedKey,text,hour,hourEnd,type,rest,done:false,ts:new Date().toISOString()});
   sv('cal_tasks',calTasks);
   document.getElementById('day-new-text').value='';
+  document.getElementById('day-new-hour-end').value='';
   renderDayHours(calSelectedKey);
   renderCalendar();
 }
@@ -2436,6 +2453,16 @@ async function init(){
 
   // Cargar datos de Firebase (fuente de verdad)
   await loadAllFromFirebase();
+
+  // BACKUP antes de cualquier migración
+  try{
+    var backupData={};
+    SYNC_KEYS.forEach(function(k){var v=localStorage.getItem(k);if(v&&v.length>5)backupData[k]=JSON.parse(v);});
+    if(Object.keys(backupData).length>0){
+      var backupKey='backup_'+new Date().toISOString().slice(0,10);
+      fbWrite('backups/'+backupKey,backupData);
+    }
+  }catch(e){}
 
   // Migrar datos
   try{migrateNotesToCal();}catch(e){}
