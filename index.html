@@ -320,9 +320,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
     <button class="nav-item" onclick="goTo('instrucciones')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span>Instrucciones</span></button>
   </nav>
   <div class="sidebar-footer">
-    <div id="sync-status" style="font-size:11px;padding:4px 10px 8px;display:flex;align-items:center;gap:6px;color:rgba(255,255,255,0.4);">
+    <div id="sync-status" style="font-size:11px;padding:4px 10px 4px;display:flex;align-items:center;gap:6px;color:rgba(255,255,255,0.4);">
       <span style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.2);display:inline-block;"></span> Conectando...
     </div>
+    <div id="debug-info" style="font-size:9px;padding:0 10px 4px;color:rgba(255,255,255,0.25);"></div>
+    <button onclick="forceReloadAll()" style="background:none;border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:rgba(255,255,255,0.4);font-size:10px;padding:3px 8px;margin:0 10px 6px;cursor:pointer;">↻ Recargar datos</button>
     <button class="api-key-btn" onclick="openModal()"><span class="api-status" id="api-dot"></span><span id="api-btn-label">API Key</span></button>
   </div>
 </aside>
@@ -330,56 +332,53 @@ input:focus,select:focus,textarea:focus{border-color:var(--yellow-dark);box-shad
 
 <!-- INICIO -->
 <div class="page active" id="page-inicio">
-  <div class="page-header" style="margin-bottom:16px;padding-bottom:14px;">
-    <h2 id="greeting">Buenos días</h2><p id="subgreeting"></p>
+  <div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+    <h2 id="greeting" style="font-size:18px;font-weight:600;color:var(--text);margin:0;">Buenos días</h2>
+    <p id="subgreeting" style="font-size:12px;color:var(--text-faint);margin-top:2px;"></p>
   </div>
   <div class="alert-banner" id="alert-banner"><div class="alert-banner-title">⚠ Vence mañana</div><div id="alert-list"></div></div>
 
-  <!-- 1/3: CALENDARIO -->
-  <div class="card" style="margin-bottom:10px;padding:16px 20px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div style="display:flex;align-items:center;gap:10px;">
+  <!-- CALENDARIO -->
+  <div class="card" style="margin-bottom:8px;padding:14px 18px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;">
         <button class="cal-nav-btn" onclick="calWeekOffset(-1)">&#8592;</button>
-        <span id="cal-week-label" style="font-size:15px;font-weight:700;color:var(--text);"></span>
+        <span id="cal-week-label" style="font-size:14px;font-weight:700;color:var(--text);cursor:pointer;" onclick="document.getElementById('cal-datepicker').showPicker?document.getElementById('cal-datepicker').showPicker():document.getElementById('cal-datepicker').click()"></span>
+        <input type="date" id="cal-datepicker" style="position:absolute;opacity:0;width:0;height:0;" onchange="calJumpToDate(this.value)"/>
         <button class="cal-nav-btn" onclick="calWeekOffset(1)">&#8594;</button>
         <button class="cal-nav-btn" id="cal-today-btn" onclick="calGoToday()" style="display:none;font-size:11px;padding:4px 10px;">Hoy</button>
       </div>
-      <button class="btn btn-yellow" onclick="calOpenAdd()" style="padding:7px 16px;font-weight:600;">+ Añadir tarea</button>
+      <button class="btn btn-yellow" onclick="calOpenAdd()" style="padding:6px 14px;font-weight:600;font-size:12px;">+ Añadir tarea</button>
     </div>
-    <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:7px;"></div>
+    <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;"></div>
   </div>
 
-  <!-- 2/3: BLOC DE NOTAS SEMANAL tipo OneNote -->
-  <div id="onenote-block" style="margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:2px solid #7BA797;background:linear-gradient(135deg,#2D3436 0%,#3D4447 100%);">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:16px;">📓</span>
+  <!-- NOTAS SEMANALES -->
+  <div id="onenote-block" style="margin-bottom:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:2px solid #7BA797;background:linear-gradient(135deg,#2D3436 0%,#3D4447 100%);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:14px;">📓</span>
         <div>
-          <div id="onenote-title" style="font-size:13px;font-weight:700;color:#fff;letter-spacing:-0.2px;"></div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px;">Notas de la semana · se guardan permanentemente</div>
+          <div id="onenote-title" style="font-size:12px;font-weight:600;color:#fff;"></div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px;">Se guardan permanentemente</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <button class="cal-nav-btn" onclick="calWeekOffset(-1)" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;font-size:13px;padding:4px 10px;">&#8592;</button>
-        <button class="cal-nav-btn" onclick="calWeekOffset(1)" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:#fff;font-size:13px;padding:4px 10px;">&#8594;</button>
-      </div>
     </div>
-    <div style="padding:18px 22px;">
+    <div style="padding:16px 20px;">
       <textarea id="onenote-textarea"
-        placeholder="Escribe aquí las notas de esta semana... Reuniones, acuerdos, observaciones, recordatorios. Todo lo que necesites."
+        placeholder="Notas de la semana..."
         onkeyup="saveOneNote()"
         oninput="saveOneNote()"
-        style="width:100%;min-height:180px;border:none;outline:none;resize:vertical;font-family:'Inter',-apple-system,sans-serif;font-size:14px;line-height:1.75;color:var(--text);background:transparent;padding:0;"></textarea>
+        style="width:100%;min-height:220px;border:none;outline:none;resize:vertical;font-family:Georgia,'Times New Roman',serif;font-size:13px;line-height:1.8;color:var(--text);background:transparent;padding:0;"></textarea>
     </div>
   </div>
 
-  <!-- 3/3: VISITAS CON CHECKBOXES -->
-  <div class="card" style="padding:14px 18px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <div style="font-size:12px;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;text-transform:uppercase;">Visitas esta semana</div>
-      <button class="btn btn-sm" onclick="resetVisits()">Nueva semana</button>
+  <!-- VISITAS VINCULADAS A LA SEMANA -->
+  <div class="card" style="padding:10px 14px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div style="font-size:10px;font-weight:700;color:var(--text-faint);letter-spacing:0.06em;text-transform:uppercase;">Visitas · <span id="visits-week-label"></span></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;" id="mini-rest-grid"></div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;" id="mini-rest-grid"></div>
   </div>
 </div>
 
@@ -794,6 +793,7 @@ function calWeekOffset(n){
   calWeekDelta+=n;
   renderCalendar();
   syncOneNote();
+  syncWeekVisits();
   const btn=document.getElementById('cal-today-btn');
   if(btn)btn.style.display=calWeekDelta!==0?'inline-flex':'none';
 }
@@ -801,7 +801,21 @@ function calGoToday(){
   calWeekDelta=0;
   renderCalendar();
   syncOneNote();
+  syncWeekVisits();
   document.getElementById('cal-today-btn').style.display='none';
+}
+function calJumpToDate(dateStr){
+  if(!dateStr) return;
+  const target=new Date(dateStr+'T12:00:00');
+  const today=new Date();today.setHours(0,0,0,0);
+  const todayMonday=calGetMonday(today);
+  const targetMonday=calGetMonday(target);
+  const diffDays=Math.round((targetMonday-todayMonday)/(1000*60*60*24));
+  calWeekDelta=Math.round(diffDays/7);
+  renderCalendar();
+  syncOneNote();
+  syncWeekVisits();
+  document.getElementById('cal-today-btn').style.display=calWeekDelta!==0?'inline-flex':'none';
 }
 
 function calGetDayTasks(key){
@@ -999,33 +1013,70 @@ function renderInicio(){
   checkAlerts();
   renderCalendar();
   syncOneNote();
+  syncWeekVisits();
+}
+function currentWeekKey(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const base=calGetMonday(today);
+  return calDateKey(calAddDays(base,calWeekDelta*7));
+}
+function migrateVisits(){
+  // Migrar formato antiguo (plano) al nuevo (por semana)
+  if(!visits) visits={};
+  const restNames=['Arganda','Futura','Urba','La Gavia','Vicálvaro','Velilla'];
+  const hasOldFormat=restNames.some(function(r){return visits[r]&&typeof visits[r]==='object'&&(visits[r].visited!==undefined||visits[r].ventas!==undefined);});
+  if(hasOldFormat){
+    const wk=calDateKey(calGetMonday(new Date()));
+    const oldData={};
+    restNames.forEach(function(r){if(visits[r])oldData[r]=visits[r];});
+    // Limpiar datos antiguos
+    restNames.forEach(function(r){delete visits[r];});
+    // Guardar en la semana actual
+    visits[wk]=oldData;
+    sv('visits',visits);
+    console.log('Visitas migradas a semana '+wk);
+  }
+}
+function syncWeekVisits(){
+  const wk=currentWeekKey();
+  const label=document.getElementById('visits-week-label');
+  if(label){
+    const ws=new Date(wk+'T12:00:00');
+    const we=calAddDays(ws,6);
+    const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    label.textContent=ws.getDate()+' '+months[ws.getMonth()]+' – '+we.getDate()+' '+months[we.getMonth()];
+  }
   renderMiniRestGrid();
 }
 function renderMiniRestGrid(){
   const g=document.getElementById('mini-rest-grid');if(!g)return;g.innerHTML='';
+  const wk=currentWeekKey();
+  // Visitas por semana: visits = {weekKey: {Arganda: {visited:true,...},...},...}
+  if(!visits[wk]) visits[wk]={};
   RESTS.forEach(r=>{
-    const v=visits[r]||{};
+    const v=visits[wk][r]||{};
     const allDone=v.visited&&v.ventas&&v.necesidades&&v.food;
     const d=document.createElement('div');
-    d.style.cssText=`border:1px solid ${allDone?'#9ED4B8':'var(--border)'};border-radius:var(--radius-sm);padding:10px 12px;background:${allDone?'var(--green-light)':'var(--surface)'}`;
-    d.innerHTML=`
-      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">${r}</div>
-      <div style="font-size:10px;color:${allDone?'var(--green)':'var(--text-faint)'};margin-bottom:8px;font-weight:500;">${allDone?'✓ Completa':'Pendiente'}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;">
-        ${['visited','ventas','necesidades','food'].map((f,i)=>{
-          const labels=['Visita','Ventas','Necesidades','Food cost'];
-          return`<div class="chk${v[f]?' on':''}" onclick="event.stopPropagation();toggleVisitMini('${r}','${f}')">${labels[i]}</div>`;
-        }).join('')}
-      </div>`;
+    d.style.cssText='border:1px solid '+(allDone?'rgba(123,167,151,0.4)':'var(--border)')+';border-radius:var(--radius-sm);padding:8px 10px;background:'+(allDone?'rgba(123,167,151,0.06)':'var(--surface)');
+    d.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;">'+r+'</div>'
+      +'<div style="font-size:9px;color:'+(allDone?'var(--green)':'var(--text-faint)')+';margin-bottom:6px;font-weight:500;">'+(allDone?'✓ Completa':'Pendiente')+'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:3px;">'
+      +['visited','ventas','necesidades','food'].map(function(f,i){
+          var labels=['Visita','Ventas','Necesidades','Food cost'];
+          var on=v[f]?true:false;
+          return '<div class="chk'+(on?' on':'')+'" onclick="event.stopPropagation();toggleVisitMini(\''+r+'\',\''+f+'\')">'+labels[i]+'</div>';
+        }).join('')
+      +'</div>';
     g.appendChild(d);
   });
 }
 function toggleVisitMini(r,field){
-  if(!visits[r])visits[r]={};
-  visits[r][field]=!visits[r][field];
+  const wk=currentWeekKey();
+  if(!visits[wk])visits[wk]={};
+  if(!visits[wk][r])visits[wk][r]={};
+  visits[wk][r][field]=!visits[wk][r][field];
   sv('visits',visits);
   renderMiniRestGrid();
-  renderRestGrid('rest-grid');
 }
 
 // ONENOTE SEMANAL
@@ -1071,7 +1122,7 @@ function toggleVisit(r,field,fromId){
   if(!visits[r])visits[r]={};visits[r][field]=!visits[r][field];sv('visits',visits);
   renderRestGrid('rest-grid');renderRestGrid('mini-rest-grid');
 }
-function resetVisits(){if(!confirm('¿Resetear visitas para nueva semana?'))return;visits={};sv('visits',visits);renderRestGrid('rest-grid');renderRestGrid('mini-rest-grid');}
+function resetVisits(){/* Ya no se necesita — cada semana tiene su propio checklist */}
 function renderReminders(){
   const now=new Date();const isThur=now.getDay()===4;
   const d=document.getElementById('rem-list-vis');if(!d)return;
@@ -2258,6 +2309,28 @@ function renderCandidatos(){
   }).join('');
 }
 
+async function forceReloadAll(){
+  const dbg=document.getElementById('debug-info');
+  if(dbg) dbg.textContent='Cargando...';
+  updateSyncStatus('syncing');
+  try{
+    const res=await fetch(FB_URL+'/data.json');
+    if(!res.ok){if(dbg)dbg.textContent='Error HTTP '+res.status;return;}
+    const allData=await res.json();
+    if(!allData){if(dbg)dbg.textContent='Firebase vacío';updateSyncStatus('offline');return;}
+    var keys=Object.keys(allData);
+    keys.forEach(function(k){if(SYNC_KEYS.includes(k))applyData(k,allData[k]);});
+    renderAll();
+    var info='r:'+reuniones.length+' c:'+costes.length+' wn:'+Object.keys(weekNotes).length+' ct:'+(calTasks?calTasks.length:0);
+    if(dbg) dbg.textContent='OK · '+info;
+    updateSyncStatus('synced');
+    console.log('ForceReload: '+info);
+  }catch(e){
+    if(dbg) dbg.textContent='Error: '+e.message;
+    updateSyncStatus('offline');
+  }
+}
+
 // FIREBASE SYNC (REST API)
 const SYNC_KEYS=['costes','cal_tasks','cal_quick_notes','week_notes','mc','reuniones','vel_notes','instr_notes','visits','notes','vel_candidatos'];
 
@@ -2364,8 +2437,9 @@ async function init(){
   // Cargar datos de Firebase (fuente de verdad)
   await loadAllFromFirebase();
 
-  // Migrar notas
+  // Migrar datos
   try{migrateNotesToCal();}catch(e){}
+  try{migrateVisits();}catch(e){}
 
   // Corregir periodo de costes existentes usando fecha_fin
   try{
@@ -2391,15 +2465,15 @@ async function init(){
   // Renderizar TODO
   renderAll();
 
-  // Forzar recarga de reuniones desde Firebase (fix específico)
-  fbRead('data/reuniones').then(val=>{
-    if(val){
-      reuniones=Array.isArray(val)?val:Object.values(val).filter(Boolean);
-      try{localStorage.setItem('reuniones',JSON.stringify(reuniones));}catch(e){}
-      console.log('Reuniones forzadas:',reuniones.length);
-      renderReunionList();
-      renderCalendar();
-    }
+  // Forzar recarga de TODOS los datos críticos desde Firebase
+  var criticalKeys=['reuniones','week_notes','costes','cal_tasks','visits','vel_candidatos','instr_notes'];
+  criticalKeys.forEach(function(k){
+    fbRead('data/'+k).then(function(val){
+      if(val){
+        applyData(k,val);
+        renderAll();
+      }
+    });
   });
 
   // McAcción
