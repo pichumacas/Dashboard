@@ -939,8 +939,13 @@ function renderDayHours(key){
       if(!t.hour) return false;
       var startH=parseInt(t.hour);
       if(t.hourEnd){
-        var endH=parseInt(t.hourEnd);
-        return hh>=startH&&hh<endH;
+        var endParts=t.hourEnd.split(':');
+        var endH=parseInt(endParts[0]);
+        var endM=parseInt(endParts[1]||'0');
+        // Si tiene minutos (ej 12:30), incluir esa hora también
+        var endTotal=endH*60+endM;
+        var slotTotal=hh*60;
+        return hh>=startH&&slotTotal<endTotal;
       }
       return t.hour.startsWith(h.slice(0,2));
     });
